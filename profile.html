@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>الملف الشخصي | مسار</title>
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&family=Inter:wght@400;600;700&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="css/style.css"/>
+  <script src="https://www.gstatic.com/firebasejs/10.13.1/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.13.1/firebase-auth-compat.js"></script>
+</head>
+<body class="rtl">
+  <nav class="navbar" id="navbar"></nav>
+
+  <div class="section" style="padding-top:2.5rem">
+    <h1 style="text-align:center;font-size:1.6rem;font-weight:800;margin-bottom:1.5rem" id="profPageTitle">الملف الشخصي</h1>
+    <div id="profileContent"></div>
+  </div>
+
+  <footer class="footer" id="footer"></footer>
+
+  <script src="js/firebase-config.js"></script>
+  <script src="js/data.js"></script>
+  <script src="js/app.js"></script>
+  <script>
+    initFirebase();
+    function renderPage(){ renderProfile(); }
+    renderProfile();
+  </script>
+</body>
+</html>

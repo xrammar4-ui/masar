@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>مسار | Masar</title>
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&family=Inter:wght@400;600;700&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="css/style.css"/>
+</head>
+<body class="rtl">
+  <nav class="navbar" id="navbar"></nav>
+
+  <section class="hero hero-modern">
+    <div class="hero-inner">
+      <!-- Visual side - standing style like Manhaj -->
+      <div class="hero-visual">
+        <div class="hosts-composition">
+          <!-- Soft glow behind -->
+          <div class="glow-circle"></div>
+
+          <!-- Back hosts -->
+          <div class="host-figure host-back host-left">
+            <img src="img/abumalih.png" alt="عبدالرحمن أبومالح"/>
+          </div>
+          <div class="host-figure host-back host-right">
+            <img src="img/host3.png" alt="مضيف"/>
+          </div>
+
+          <!-- Front: Yasser -->
+          <div class="host-figure host-front">
+            <img src="img/yasser.png" alt="ياسر الحزيمي"/>
+          </div>
+
+          <!-- Floating badges (these move) -->
+          <div class="float-badge badge-top">
+            <span class="badge-icon">▶</span>
+            <div>
+              <strong>1000+</strong>
+              <small>حلقة مميزة</small>
+            </div>
+          </div>
+          <div class="float-badge badge-bottom">
+            <span class="badge-icon green">+</span>
+            <div>
+              <strong>+200</strong>
+              <small>بودكاست</small>
+            </div>
+          </div>
+          <div class="float-icon icon-play">▶</div>
+          <div class="float-icon icon-award">★</div>
+        </div>
+        <div class="brand-watermark">مسار</div>
+      </div>
+
+      <!-- Content side -->
+      <div class="hero-content">
+        <h1 id="heroTitle">اكتشف أفضل البودكاستات<br>العربية مع <span>مسار</span></h1>
+        <p id="heroDesc">انضم إلى آلاف المستمعين العرب. تصفح مئات الحلقات المجانية في التطوير الذاتي، الثقافة، الأعمال، الدين وأكثر واحصل على تجربة مشاهدة عالية الجودة.</p>
+        
+        <div class="search-box modern-search">
+          <button id="searchBtn" onclick="doSearch()">ابحث الآن</button>
+          <input type="text" id="searchInput" placeholder="ابحث عن حلقة (مثال: تطوير الذات)..." onkeypress="if(event.key==='Enter')doSearch()"/>
+          <span class="search-icon">⌕</span>
+        </div>
+
+        <div class="hero-badges" id="badges">
+          <span>✓ محتوى مجاني</span>
+          <span>✓ فيديو عالي الجودة</span>
+          <span>✓ محتوى متنوع</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="stats">
+    <div class="stats-grid">
+      <div><div class="stat-num" id="stat1">100%</div><div class="stat-label" id="stat1l">محتوى مجاني</div></div>
+      <div><div class="stat-num" id="stat2">24</div><div class="stat-label" id="stat2l">تصنيف مختلف</div></div>
+      <div><div class="stat-num" id="stat3">359</div><div class="stat-label" id="stat3l">حلقة متاحة</div></div>
+      <div><div class="stat-num" id="stat4">12,000+</div><div class="stat-label" id="stat4l">مشاهدة للحلقات</div></div>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="section-header">
+      <h2 id="browseTitle"></h2>
+      <a href="categories.html" id="viewAll" style="color:var(--primary-600);font-weight:600"></a>
+    </div>
+    <div class="chips" id="homeCats"></div>
+  </section>
+
+  <section class="section" id="latestSec">
+    <div class="section-header">
+      <h2 id="latestTitle"></h2>
+      <div class="chips" id="filters"></div>
+    </div>
+    <div class="podcast-grid" id="grid"></div>
+  </section>
+
+  <section class="cta">
+    <h2 id="ctaTitle"></h2>
+    <p id="ctaDesc"></p>
+    <a href="categories.html" class="btn btn-primary" id="ctaBtn" style="font-size:1rem;padding:0.75rem 2rem"></a>
+  </section>
+
+  <footer class="footer" id="footer"></footer>
+
+  <script src="https://www.gstatic.com/firebasejs/10.13.1/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.13.1/firebase-auth-compat.js"></script>
+  <script src="js/firebase-config.js"></script>
+  <script src="js/data.js"></script>
+  <script src="js/app.js"></script>
+  <script>initFirebase();</script>
+  <script>
+    function renderPage(){ renderHome(); }
+    renderHome();
+  </script>
+</body>
+</html>
