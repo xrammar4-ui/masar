@@ -57,9 +57,14 @@ function setLang(l){
 function catLabel(c){ return CATEGORIES[c] ? CATEGORIES[c][LANG] : c; }
 
 function cardHTML(p){
+  // fallback image when YouTube thumbnail is missing/invalid
+  const fallback = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='480' height='270' viewBox='0 0 480 270'%3E%3Crect fill='%231a1a2e' width='480' height='270'/%3E%3Ccircle cx='240' cy='120' r='36' fill='%23e94560'/%3E%3Cpolygon points='230,100 230,140 260,120' fill='white'/%3E%3Ctext x='240' y='200' text-anchor='middle' fill='%23aaa' font-family='Arial' font-size='14'%3Eمسار%3C/text%3E%3C/svg%3E";
   return `<a href="podcast.html?id=${p.id}" class="card">
     <div class="card-thumb">
-      <img src="https://i.ytimg.com/vi/${p.youtubeId}/hqdefault.jpg" alt="" loading="lazy"/>
+      <img src="https://i.ytimg.com/vi/${p.youtubeId}/hqdefault.jpg" 
+           alt="" 
+           loading="lazy"
+           onerror="this.onerror=null;this.src='${fallback}'"/>
       <span class="card-duration">${p.duration}</span>
       <div class="card-play"><span>▶</span></div>
     </div>
@@ -178,11 +183,12 @@ function renderMyEpisodes(){
     const show = item.show || (p ? txt(p.show) : '');
     const ytid = item.youtubeId || (p && p.youtubeId) || '';
     const thumb = ytid ? ('https://i.ytimg.com/vi/' + ytid + '/hqdefault.jpg') : '';
+    const fallback = "data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' width=\'480\' height=\'270\' viewBox=\'0 0 480 270\'%3E%3Crect fill=\'%231a1a2e\' width=\'480\' height=\'270\'/%3E%3Ccircle cx=\'240\' cy=\'120\' r=\'36\' fill=\'%23e94560\'/%3E%3Cpolygon points=\'230,100 230,140 260,120\' fill=\'white\'/%3E%3Ctext x=\'240\' y=\'200\' text-anchor=\'middle\' fill=\'%23aaa\' font-family=\'Arial\' font-size=\'14\'%3Eمسار%3C/text%3E%3C/svg%3E";
     const pct = Math.max(0, Math.min(100, item.progress || 0));
     const dur = item.duration || (p && p.duration) || '';
     return '<a href="podcast.html?id=' + item.id + '" class="history-item">' +
       '<div class="history-thumb">' +
-        (thumb ? '<img src="' + thumb + '" alt="" loading="lazy"/>' : '<div class="history-thumb-placeholder">▶</div>') +
+        (thumb ? '<img src="' + thumb + '" alt="" loading="lazy" onerror="this.onerror=null;this.src=\'' + fallback + '\'"/>' : '<div class="history-thumb-placeholder">▶</div>') +
         (dur ? '<span class="card-duration">' + dur + '</span>' : '') +
       '</div>' +
       '<div class="history-body">' +
