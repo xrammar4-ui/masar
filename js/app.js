@@ -18,7 +18,8 @@ const T = {
     back:'← العودة للرئيسية', fs:'تكبير الشاشة', exitFs:'تصغير',
     related:'حلقات مشابهة', noRes:'لا توجد نتائج', views:'مشاهدة',
     allCats:'كل التصنيفات', choose:'اختر التصنيف الذي يناسب اهتماماتك',
-    searchCat:'ابحث داخل التصنيفات أو الحلقات...', noEp:'لا توجد حلقات حالياً'
+    searchCat:'ابحث داخل التصنيفات أو الحلقات...', noEp:'لا توجد حلقات حالياً',
+    myEps:'حلقاتي', mySub:'كل الحلقات التي فتحتها، مع نسبة تقدم المشاهدة', myEmpty:'لم تشاهد أي حلقة بعد'
   },
   en: {
     brand:'Masar', home:'Home', categories:'Categories',
@@ -36,7 +37,8 @@ const T = {
     back:'← Back to Home', fs:'Fullscreen', exitFs:'Exit Fullscreen',
     related:'Related Episodes', noRes:'No results found', views:'views',
     allCats:'All Categories', choose:'Choose the category that matches your interests',
-    searchCat:'Search within categories or episodes...', noEp:'No episodes yet'
+    searchCat:'Search within categories or episodes...', noEp:'No episodes yet',
+    myEps:'My Episodes', mySub:'All episodes you opened, with watch progress', myEmpty:'No episodes watched yet'
   }
 };
 
@@ -74,6 +76,158 @@ function getUser(){
 }
 function saveUser(u){ localStorage.setItem('ph_user', JSON.stringify(u)); }
 
+
+// ========== نظام حلقاتي / التقدم ==========
+let _historyCache = null;
+let _historyLoadedFor = null;
+
+function getHistory(){
+  if(_historyCache) return _historyCache;
+  try {
+    _historyCache = JSON.parse(localStorage.getItem('ph_history') || '{}');
+  } catch(e){
+    _historyCache = {};
+  }
+  return _historyCache;
+}
+
+function saveHistory(h){
+  _historyCache = h;
+  localStorage.setItem('ph_history', JSON.stringify(h));
+}
+
+function updateEpisodeProgress(id, progress, extra){
+  const h = getHistory();
+  const key = String(id);
+  const prev = h[key] || {};
+  const pct = Math.max(0, Math.min(100, Math.round(Number(progress) || 0)));
+  const newPct = Math.max(prev.progress || 0, pct);
+  h[key] = {
+    id: Number(id),
+    progress: newPct,
+    lastWatched: Date.now(),
+    title: (extra && extra.title) || prev.title || '',
+    show: (extra && extra.show) || prev.show || '',
+    youtubeId: (extra && extra.youtubeId) || prev.youtubeId || '',
+    duration: (extra && extra.duration) || prev.duration || ''
+  };
+  saveHistory(h);
+  const user = getUser();
+  if(user && user.uid && typeof firebaseDb !== 'undefined' && firebaseDb && !String(user.uid).startsWith('local_')){
+    try {
+      firebaseDb.collection('users').doc(user.uid).collection('history').doc(key).set(h[key], { merge: true }).catch(function(){});
+    } catch(e){}
+  }
+  return h[key];
+}
+
+async function loadHistoryFromCloud(uid){
+  if(!uid || String(uid).startsWith('local_')) return;
+  if(_historyLoadedFor === uid) return;
+  if(typeof firebaseDb === 'undefined' || !firebaseDb) return;
+  try {
+    const snap = await firebaseDb.collection('users').doc(uid).collection('history').get();
+    const local = getHistory();
+    snap.forEach(function(doc){
+      const d = doc.data();
+      const id = String(d.id || doc.id);
+      const prev = local[id];
+      if(!prev || (d.progress || 0) > (prev.progress || 0) || (d.lastWatched || 0) > (prev.lastWatched || 0)){
+        local[id] = Object.assign({}, prev || {}, d, { id: Number(id) });
+      }
+    });
+    saveHistory(local);
+    _historyLoadedFor = uid;
+  } catch(e){
+    console.warn('loadHistoryFromCloud', e);
+  }
+}
+
+function renderMyEpisodes(){
+  renderNavbar();
+  renderFooter();
+  const grid = document.getElementById('myGrid');
+  const empty = document.getElementById('myEmpty');
+  if(!grid) return;
+
+  const h = getHistory();
+  const items = Object.values(h)
+    .filter(function(x){ return x && x.id; })
+    .sort(function(a,b){ return (b.lastWatched || 0) - (a.lastWatched || 0); });
+
+  if(document.getElementById('myTitle')){
+    document.getElementById('myTitle').textContent = t('myEps');
+  }
+  if(document.getElementById('mySub')){
+    document.getElementById('mySub').textContent = t('mySub');
+  }
+
+  if(!items.length){
+    grid.innerHTML = '';
+    if(empty){
+      empty.style.display = 'block';
+      empty.innerHTML = '<div style="font-size:3rem;margin-bottom:0.5rem">▶</div><p>' + t('myEmpty') + '</p><a href="index.html" class="btn btn-primary" style="margin-top:1rem">' + t('explore') + '</a>';
+    }
+    return;
+  }
+  if(empty) empty.style.display = 'none';
+
+  grid.innerHTML = items.map(function(item){
+    const p = PODCASTS.find(function(x){ return x.id === item.id; });
+    const title = item.title || (p ? txt(p.title) : ('#' + item.id));
+    const show = item.show || (p ? txt(p.show) : '');
+    const ytid = item.youtubeId || (p && p.youtubeId) || '';
+    const thumb = ytid ? ('https://i.ytimg.com/vi/' + ytid + '/hqdefault.jpg') : '';
+    const pct = Math.max(0, Math.min(100, item.progress || 0));
+    const dur = item.duration || (p && p.duration) || '';
+    return '<a href="podcast.html?id=' + item.id + '" class="history-item">' +
+      '<div class="history-thumb">' +
+        (thumb ? '<img src="' + thumb + '" alt="" loading="lazy"/>' : '<div class="history-thumb-placeholder">▶</div>') +
+        (dur ? '<span class="card-duration">' + dur + '</span>' : '') +
+      '</div>' +
+      '<div class="history-body">' +
+        '<div class="history-show">' + show + '</div>' +
+        '<div class="history-title">' + title + '</div>' +
+        '<div class="history-progress-wrap">' +
+          '<div class="history-progress-bar"><div class="history-progress-fill" style="width:' + pct + '%"></div></div>' +
+          '<span class="history-pct">' + pct + '%</span>' +
+        '</div>' +
+      '</div></a>';
+  }).join('');
+}
+
+// ========== شاشة التحميل ==========
+function showLoadingScreen(){
+  if(sessionStorage.getItem('ph_loaded') === '1') return;
+  if(document.getElementById('siteLoader')) return;
+  var overlay = document.createElement('div');
+  overlay.id = 'siteLoader';
+  overlay.className = 'site-loader';
+  overlay.innerHTML = '<video id="loaderVideo" autoplay muted playsinline><source src="img/loading.mp4" type="video/mp4"/></video>';
+  document.body.appendChild(overlay);
+  document.body.style.overflow = 'hidden';
+  var video = document.getElementById('loaderVideo');
+  var hide = function(){
+    sessionStorage.setItem('ph_loaded', '1');
+    overlay.classList.add('hide');
+    document.body.style.overflow = '';
+    setTimeout(function(){ if(overlay.parentNode) overlay.remove(); }, 600);
+  };
+  if(video){
+    video.addEventListener('ended', hide);
+    video.addEventListener('error', hide);
+    setTimeout(hide, 11000);
+  } else {
+    setTimeout(hide, 1500);
+  }
+}
+if(document.readyState === 'loading'){
+  document.addEventListener('DOMContentLoaded', showLoadingScreen);
+} else {
+  showLoadingScreen();
+}
+
+
 function renderNavbar(){
   const nav = document.getElementById('navbar');
   if(!nav) return;
@@ -82,6 +236,7 @@ function renderNavbar(){
   const isHome = path.endsWith('index.html') || path.endsWith('/') || path === '';
   const isCat = path.includes('categories');
   const isAbout = path.includes('about');
+  const isMy = path.includes('my.html');
   const isProf = path.includes('profile');
 
   let avatarHTML = '';
@@ -104,6 +259,7 @@ function renderNavbar(){
     <div class="nav-links" id="navLinks">
       <a href="index.html" class="${isHome?'active':''}">${t('home')}</a>
       <a href="categories.html" class="${isCat?'active':''}">${t('categories')}</a>
+      <a href="my.html" class="${isMy?'active':''}">${t('myEps')}</a>
       <a href="about.html" class="${isAbout?'active':''}">${LANG==='ar'?'عن المنصة':'About'}</a>
     </div>
     <div class="nav-actions">
@@ -270,11 +426,6 @@ function logout(){
   _historyLoadedFor = null;
   location.href = 'index.html';
 }
-function logout(){
-  if(typeof firebaseAuth !== 'undefined' && firebaseAuth) firebaseAuth.signOut().catch(()=>{});
-  localStorage.removeItem('ph_user');
-  location.href = 'index.html';
-}
 
 function renderProfile(){
   renderNavbar(); renderFooter();
@@ -347,7 +498,7 @@ function renderFooter(){
   <div class="footer-inner">
     <div>
       <div class="logo" style="margin-bottom:1rem;display:flex;align-items:center;gap:0.5rem">
-        <img src="img/logo.png" alt="مسار" class="logo-img" style="height:40px;background:#fff;border-radius:8px;padding:4px 8px;"/>
+        <img src="img/logo.png" alt="مسار" class="logo-img" style="height:44px;"/>
       </div>
       <p style="max-width:360px;font-size:0.9rem">${t('aboutText')}</p>
     </div>
@@ -355,6 +506,7 @@ function renderFooter(){
       <div style="display:flex;flex-direction:column;gap:0.4rem;font-size:0.9rem">
         <a href="index.html">${t('home')}</a>
         <a href="categories.html">${t('categories')}</a>
+        <a href="my.html">${t('myEps')}</a>
         <a href="about.html">${LANG==='ar'?'عن المنصة':'About'}</a>
       </div>
     </div>
@@ -520,27 +672,96 @@ function renderPodcast(){
   document.getElementById('host').textContent = txt(p.host);
   document.getElementById('relatedTitle').textContent = t('related');
 
+  // سجّل الحلقة فوراً بنسبة أولية
+  updateEpisodeProgress(p.id, 1, {
+    title: txt(p.title),
+    show: txt(p.show),
+    youtubeId: p.youtubeId,
+    duration: p.duration
+  });
+
   const box = document.getElementById('playerBox');
-  // Clean the box first (keep only the player-bar)
   const bar = box.querySelector('.player-bar');
   box.innerHTML = '';
   if(bar) box.appendChild(bar);
 
-  // Standard YouTube embed - most reliable for playback
-  const embedUrl = `https://www.youtube.com/embed/${p.youtubeId}?rel=0&modestbranding=1&controls=1&playsinline=1&fs=1&iv_load_policy=3&disablekb=0&cc_load_policy=0`;
-  
-  const iframe = document.createElement('iframe');
-  iframe.src = embedUrl;
-  iframe.title = txt(p.title);
-  iframe.allow = 'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share; fullscreen';
-  iframe.allowFullscreen = true;
-  iframe.setAttribute('frameborder', '0');
-  iframe.setAttribute('allowfullscreen', '');
-  iframe.setAttribute('referrerpolicy', 'strict-origin-when-cross-origin');
-  iframe.style.cssText = 'position:absolute;top:0;left:0;width:100%;height:100%;border:0;';
-  
-  // Put iframe first, then the bar on top
-  box.insertBefore(iframe, box.firstChild);
+  // YouTube IFrame API لتتبع التقدم
+  const playerDiv = document.createElement('div');
+  playerDiv.id = 'ytPlayer';
+  playerDiv.style.cssText = 'position:absolute;top:0;left:0;width:100%;height:100%;';
+  box.insertBefore(playerDiv, box.firstChild);
+
+  function startYtPlayer(){
+    if(typeof YT === 'undefined' || !YT.Player){
+      // fallback iframe بدون تتبع دقيق
+      const iframe = document.createElement('iframe');
+      iframe.src = 'https://www.youtube.com/embed/' + p.youtubeId + '?rel=0&modestbranding=1&controls=1&playsinline=1&fs=1';
+      iframe.title = txt(p.title);
+      iframe.allow = 'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share; fullscreen';
+      iframe.allowFullscreen = true;
+      iframe.setAttribute('frameborder', '0');
+      iframe.style.cssText = 'position:absolute;top:0;left:0;width:100%;height:100%;border:0;';
+      playerDiv.replaceWith(iframe);
+      // تقدير تقريبي حسب الوقت على الصفحة
+      let secs = 0;
+      const approx = setInterval(function(){
+        secs += 5;
+        // نفترض متوسط مدة ~90 دقيقة إذا لم نعرف
+        const est = Math.min(95, Math.round((secs / 5400) * 100));
+        updateEpisodeProgress(p.id, est);
+      }, 5000);
+      window.addEventListener('beforeunload', function(){ clearInterval(approx); });
+      return;
+    }
+    const player = new YT.Player('ytPlayer', {
+      videoId: p.youtubeId,
+      playerVars: {
+        rel: 0, modestbranding: 1, controls: 1, playsinline: 1, fs: 1,
+        iv_load_policy: 3, cc_load_policy: 0
+      },
+      events: {
+        onStateChange: function(e){
+          if(e.data === YT.PlayerState.PLAYING){
+            if(window._ytProgressTimer) clearInterval(window._ytProgressTimer);
+            window._ytProgressTimer = setInterval(function(){
+              try {
+                const cur = player.getCurrentTime() || 0;
+                const dur = player.getDuration() || 0;
+                if(dur > 0){
+                  const pct = Math.min(100, Math.round((cur / dur) * 100));
+                  updateEpisodeProgress(p.id, pct);
+                }
+              } catch(err){}
+            }, 3000);
+          } else if(e.data === YT.PlayerState.PAUSED || e.data === YT.PlayerState.ENDED){
+            if(window._ytProgressTimer) clearInterval(window._ytProgressTimer);
+            try {
+              const cur = player.getCurrentTime() || 0;
+              const dur = player.getDuration() || 0;
+              if(dur > 0){
+                const pct = e.data === YT.PlayerState.ENDED ? 100 : Math.min(100, Math.round((cur / dur) * 100));
+                updateEpisodeProgress(p.id, pct);
+              }
+            } catch(err){}
+          }
+        }
+      }
+    });
+  }
+
+  if(typeof YT !== 'undefined' && YT.Player){
+    startYtPlayer();
+  } else {
+    window.onYouTubeIframeAPIReady = startYtPlayer;
+    if(!document.getElementById('ytApiScript')){
+      const s = document.createElement('script');
+      s.id = 'ytApiScript';
+      s.src = 'https://www.youtube.com/iframe_api';
+      document.head.appendChild(s);
+    }
+    // احتياطي إذا الـ API ما اشتغلت
+    setTimeout(function(){ if(typeof YT === 'undefined') startYtPlayer(); }, 4000);
+  }
 
   const related = PODCASTS.filter(x=>x.category===p.category && x.id!==p.id).slice(0,6);
   document.getElementById('relatedGrid').innerHTML = related.map(cardHTML).join('') || `<div class="empty">${t('noEp')}</div>`;
