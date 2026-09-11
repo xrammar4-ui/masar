@@ -36,6 +36,29 @@
     initFirebase();
     renderNavbar();
     renderFooter();
+
+    if(typeof firebaseAuth !== 'undefined' && firebaseAuth){
+      firebaseAuth.getRedirectResult().then(async function(result){
+        if(result && result.user){
+          const u = {
+            uid: result.user.uid,
+            email: result.user.email,
+            name: result.user.displayName || (result.user.email ? result.user.email.split('@')[0] : 'User'),
+            avatar: result.user.photoURL || ''
+          };
+          saveUser(u);
+          if(typeof loadHistoryFromCloud === 'function') await loadHistoryFromCloud(u.uid);
+          const ret = sessionStorage.getItem('ph_return') || 'index.html';
+          sessionStorage.removeItem('ph_return');
+          location.href = ret.includes('login.html') ? 'index.html' : ret;
+        }
+      }).catch(function(e){
+        console.error(e);
+        var err = document.getElementById('authError');
+        if(err){ err.textContent = e.message; err.style.display = 'block'; }
+      });
+    }
+
     if(getUser()){
       const ret = sessionStorage.getItem('ph_return') || 'index.html';
       sessionStorage.removeItem('ph_return');
