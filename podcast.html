@@ -14,7 +14,6 @@
     <a href="index.html" id="backLink" style="display:inline-block;margin-bottom:1rem;color:#64748b;font-size:0.9rem;font-weight:600"></a>
 
     <div class="player-box" id="playerBox">
-      <!-- iframe will be injected here -->
       <div class="player-bar">
         <button class="fs-icon-btn" onclick="toggleFs()" id="fsBtn" title="تكبير الشاشة">
           <svg id="fsIcon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -46,11 +45,23 @@
 
   <script src="https://www.gstatic.com/firebasejs/10.13.1/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.13.1/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.13.1/firebase-firestore-compat.js"></script>
   <script src="js/firebase-config.js"></script>
   <script src="js/data.js"></script>
   <script src="js/app.js"></script>
   <script>initFirebase();</script>
   <script>
+    try {
+      var u = JSON.parse(localStorage.getItem('ph_user')||'null');
+      if(!u || !u.uid){
+        var id = new URLSearchParams(location.search).get('id') || '1';
+        sessionStorage.setItem('ph_return', 'podcast.html?id=' + id);
+        location.replace('login.html');
+      }
+    } catch(e) {
+      sessionStorage.setItem('ph_return', location.pathname + location.search);
+      location.replace('login.html');
+    }
     function renderPage(){ renderPodcast(); }
     renderPodcast();
   </script>
