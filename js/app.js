@@ -701,6 +701,10 @@ function renderHome(){
 }
 
 let homeQuery = '';
+let _homeList = [];
+let _homeShown = 0;
+const PAGE_SIZE = 48;
+
 function filterHome(cat, btn){
   if(btn){
     document.querySelectorAll('#filters .chip').forEach(b=>b.classList.remove('active'));
@@ -712,15 +716,30 @@ function filterHome(cat, btn){
     const q = homeQuery.toLowerCase();
     list = list.filter(p=>txt(p.title).toLowerCase().includes(q)||txt(p.show).toLowerCase().includes(q)||txt(p.host).toLowerCase().includes(q));
   }
+  _homeList = list;
+  _homeShown = 0;
   const grid = document.getElementById('grid');
   if(!list.length){ grid.innerHTML = `<div class="empty">${t('noRes')}</div>`; return; }
-  // عرض عدد أكبر من الحلقات (كان محدود بـ 24)
-  const limit = 120;
-  grid.innerHTML = list.slice(0, limit).map(cardHTML).join('');
-  if (list.length > limit) {
-    grid.innerHTML += `<div class="empty" style="grid-column:1/-1;padding:20px;text-align:center;opacity:.7">
-      عرض ${limit} من أصل ${list.length} حلقة — استخدم البحث أو صفحة التصنيفات لرؤية المزيد
-    </div>`;
+  grid.innerHTML = '';
+  loadMoreHome();
+}
+
+function loadMoreHome(){
+  const grid = document.getElementById('grid');
+  if(!grid) return;
+  // remove old load-more button
+  const oldBtn = document.getElementById('loadMoreBtn');
+  if(oldBtn) oldBtn.remove();
+  const next = _homeList.slice(_homeShown, _homeShown + PAGE_SIZE);
+  _homeShown += next.length;
+  grid.insertAdjacentHTML('beforeend', next.map(cardHTML).join(''));
+  if(_homeShown < _homeList.length){
+    grid.insertAdjacentHTML('beforeend', `
+      <div id="loadMoreBtn" style="grid-column:1/-1;text-align:center;padding:24px">
+        <button class="btn btn-primary" onclick="loadMoreHome()" style="min-width:200px">
+          ${LANG==='ar' ? 'عرض المزيد (' + _homeShown + ' / ' + _homeList.length + ')' : 'Load More (' + _homeShown + ' / ' + _homeList.length + ')'}
+        </button>
+      </div>`);
   }
 }
 
@@ -747,16 +766,42 @@ function renderCategories(){
   }
   window.drawChips = drawChips;
 
+  let _catList = [];
+  let _catShown = 0;
+  const CAT_PAGE = 48;
+
   function drawGrid(){
     const q = document.getElementById('catSearch').value.trim().toLowerCase();
     let list = PODCASTS;
     if(active!=='all') list = list.filter(p=>p.category===active);
     if(q) list = list.filter(p=>txt(p.title).toLowerCase().includes(q)||txt(p.show).toLowerCase().includes(q));
+    _catList = list;
+    _catShown = 0;
     const grid = document.getElementById('grid');
     if(!list.length){ grid.innerHTML = `<div class="empty">${t('noEp')}</div>`; return; }
-    grid.innerHTML = list.map(cardHTML).join('');
+    grid.innerHTML = '';
+    loadMoreCat();
+  }
+
+  function loadMoreCat(){
+    const grid = document.getElementById('grid');
+    if(!grid) return;
+    const oldBtn = document.getElementById('loadMoreCatBtn');
+    if(oldBtn) oldBtn.remove();
+    const next = _catList.slice(_catShown, _catShown + CAT_PAGE);
+    _catShown += next.length;
+    grid.insertAdjacentHTML('beforeend', next.map(cardHTML).join(''));
+    if(_catShown < _catList.length){
+      grid.insertAdjacentHTML('beforeend', `
+        <div id="loadMoreCatBtn" style="grid-column:1/-1;text-align:center;padding:24px">
+          <button class="btn btn-primary" onclick="loadMoreCat()" style="min-width:200px">
+            ${LANG==='ar' ? 'عرض المزيد (' + _catShown + ' / ' + _catList.length + ')' : 'Load More (' + _catShown + ' / ' + _catList.length + ')'}
+          </button>
+        </div>`);
+    }
   }
   window.drawGrid = drawGrid;
+  window.loadMoreCat = loadMoreCat;
   document.getElementById('catSearch').oninput = drawGrid;
   drawChips(); drawGrid();
 }
