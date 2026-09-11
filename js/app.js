@@ -148,75 +148,128 @@ function renderNavbar(){
 
 let authMode = 'login'; // login | register
 function openAuthModal(){
-  document.getElementById('authModal').classList.add('show');
+  if(!location.pathname.includes('login.html')){
+    sessionStorage.setItem('ph_return', location.pathname + location.search);
+    location.href = 'login.html';
+    return;
+  }
+  const m = document.getElementById('authModal');
+  if(m) m.classList.add('show');
 }
 function closeAuthModal(){
-  document.getElementById('authModal').classList.remove('show');
-  document.getElementById('authError').style.display = 'none';
-}
-function toggleAuthMode(){
-  authMode = authMode === 'login' ? 'register' : 'login';
-  const isReg = authMode === 'register';
-  document.getElementById('authTitle').textContent = isReg ? (LANG==='ar'?'إنشاء حساب':'Sign up') : (LANG==='ar'?'تسجيل الدخول':'Login');
-  document.getElementById('authSubmitBtn').textContent = isReg ? (LANG==='ar'?'تسجيل':'Register') : (LANG==='ar'?'دخول':'Login');
-  document.getElementById('authNameGroup').style.display = isReg ? 'block' : 'none';
-  document.getElementById('authSwitchText').textContent = isReg ? (LANG==='ar'?'لديك حساب؟':'Have an account?') : (LANG==='ar'?'ليس لديك حساب؟':'No account?');
-  document.getElementById('authSwitchLink').textContent = isReg ? (LANG==='ar'?'تسجيل الدخول':'Login') : (LANG==='ar'?'إنشاء حساب':'Sign up');
+  const m = document.getElementById('authModal');
+  if(m) m.classList.remove('show');
+  const err = document.getElementById('authError');
+  if(err) err.style.display = 'none';
 }
 
-async function handleAuth(){
-  const email = document.getElementById('authEmail').value.trim();
-  const pass = document.getElementById('authPassword').value;
-  const name = document.getElementById('authName')?.value.trim() || '';
+function requireLogin(returnUrl){
+  const url = returnUrl || (location.pathname + location.search);
+  sessionStorage.setItem('ph_return', url);
+  location.href = 'login.html';
+}
+
+function showAuthError(msg){
   const errEl = document.getElementById('authError');
-  errEl.style.display = 'none';
-
-  if(!email || !pass){
-    errEl.textContent = LANG==='ar'?'أدخل البريد وكلمة المرور':'Enter email and password';
+  if(errEl){
+    errEl.textContent = msg;
     errEl.style.display = 'block';
+  } else {
+    alert(msg);
+  }
+}
+
+async function signInWithGoogle(){
+  const errEl = document.getElementById('authError');
+  if(errEl){ errEl.style.display = 'none'; errEl.textContent = ''; }
+
+  if(location.protocol === 'file:'){
+    showAuthError('لا يمكن تسجيل الدخول من ملف محلي. استخدم الموقع المرفوع.');
     return;
   }
 
-  // Try Firebase if configured
-  if(typeof firebaseAuth !== 'undefined' && firebaseAuth){
-    try {
-      let cred;
-      if(authMode === 'register'){
-        cred = await firebaseAuth.createUserWithEmailAndPassword(email, pass);
-        if(name) await cred.user.updateProfile({ displayName: name });
-      } else {
-        cred = await firebaseAuth.signInWithEmailAndPassword(email, pass);
-      }
-      const u = {
-        uid: cred.user.uid,
-        email: cred.user.email,
-        name: cred.user.displayName || name || email.split('@')[0],
-        avatar: cred.user.photoURL || ''
-      };
-      saveUser(u);
-      closeAuthModal();
-      renderNavbar();
-      return;
-    } catch(e){
-      errEl.textContent = e.message || 'Error';
-      errEl.style.display = 'block';
-      return;
-    }
+  if(typeof firebase === 'undefined'){
+    showAuthError('مكتبة Firebase لم تُحمّل. تحقق من اتصال الإنترنت.');
+    return;
+  }
+  if(typeof firebaseAuth === 'undefined' || !firebaseAuth){
+    if(typeof initFirebase === 'function') initFirebase();
+  }
+  if(!firebaseAuth){
+    showAuthError('Firebase غير مفعّل. تأكد من مفاتيح المشروع في firebase-config.js');
+    return;
   }
 
-  // Fallback local (بدون Firebase)
-  const u = {
-    uid: 'local_'+Date.now(),
-    email,
-    name: name || email.split('@')[0],
-    avatar: ''
-  };
-  saveUser(u);
-  closeAuthModal();
-  renderNavbar();
-  if(authMode==='register') alert(LANG==='ar'?'تم إنشاء الحساب محلياً. ضع مفاتيح Firebase لتفعيل السحابة.':'Account created locally. Add Firebase keys for cloud.');
+  const btn = document.querySelector('.btn-google');
+  if(btn){ btn.disabled = true; btn.style.opacity = '0.7'; }
+
+  try {
+    const provider = new firebase.auth.GoogleAuthProvider();
+    provider.addScope('profile');
+    provider.addScope('email');
+    provider.setCustomParameters({ prompt: 'select_account' });
+
+    let cred;
+    try {
+      cred = await firebaseAuth.signInWithPopup(provider);
+    } catch(popupErr){
+      console.warn('popup failed, trying redirect', popupErr);
+      if(popupErr.code === 'auth/popup-blocked' ||
+         popupErr.code === 'auth/popup-closed-by-user' ||
+         popupErr.code === 'auth/cancelled-popup-request'){
+        await firebaseAuth.signInWithRedirect(provider);
+        return;
+      }
+      throw popupErr;
+    }
+
+    const u = {
+      uid: cred.user.uid,
+      email: cred.user.email,
+      name: cred.user.displayName || (cred.user.email ? cred.user.email.split('@')[0] : 'User'),
+      avatar: cred.user.photoURL || ''
+    };
+    saveUser(u);
+    if(typeof loadHistoryFromCloud === 'function'){
+      await loadHistoryFromCloud(u.uid);
+    }
+    closeAuthModal();
+    renderNavbar();
+
+    const ret = sessionStorage.getItem('ph_return');
+    sessionStorage.removeItem('ph_return');
+    if(ret && !ret.includes('login.html')){
+      location.href = ret;
+    } else {
+      location.href = 'index.html';
+    }
+  } catch(e){
+    console.error('Google sign-in error:', e);
+    let msg = e.message || 'Google sign-in failed';
+    if(e.code === 'auth/unauthorized-domain'){
+      msg = 'النطاق غير مصرح. أضف نطاق موقعك من Firebase → Authentication → Settings → Authorized domains';
+    } else if(e.code === 'auth/operation-not-allowed'){
+      msg = 'تسجيل Google غير مفعّل. من Firebase → Authentication → Sign-in method → Google → Enable';
+    } else if(e.code === 'auth/popup-closed-by-user'){
+      msg = 'تم إغلاق نافذة Google. حاول مرة أخرى.';
+    } else if(e.code === 'auth/network-request-failed'){
+      msg = 'مشكلة شبكة. تحقق من الإنترنت.';
+    }
+    showAuthError(msg);
+  } finally {
+    if(btn){ btn.disabled = false; btn.style.opacity = '1'; }
+  }
 }
 
+async function handleAuth(){ return signInWithGoogle(); }
+
+function logout(){
+  if(typeof firebaseAuth !== 'undefined' && firebaseAuth) firebaseAuth.signOut().catch(()=>{});
+  localStorage.removeItem('ph_user');
+  _historyCache = null;
+  _historyLoadedFor = null;
+  location.href = 'index.html';
+}
 function logout(){
   if(typeof firebaseAuth !== 'undefined' && firebaseAuth) firebaseAuth.signOut().catch(()=>{});
   localStorage.removeItem('ph_user');
