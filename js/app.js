@@ -98,7 +98,7 @@ function renderNavbar(){
 
   nav.innerHTML = `
   <div class="nav-inner">
-    <a href="index.html" class="logo">
+    <a href="/" class="logo">
       <img src="img/logo.png" alt="مسار" class="logo-img"/>
     </a>
     <div class="nav-links" id="navLinks">
