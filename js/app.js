@@ -61,7 +61,7 @@ function cardHTML(p){
     <div class="card-thumb">
       <img src="https://i.ytimg.com/vi/${p.youtubeId}/hqdefault.jpg" alt="" loading="lazy"/>
       <span class="card-duration">${p.duration}</span>
-      <span class="card-cat">${catLabel(p.category)}</span>
+      <div class="card-play"><span>▶</span></div>
     </div>
     <div class="card-body">
       <div class="card-show">${txt(p.show)}</div>
@@ -228,6 +228,87 @@ if(document.readyState === 'loading'){
 }
 
 
+
+function toggleAvatarMenu(e){
+  if(e) e.stopPropagation();
+  const dd = document.getElementById('avatarDropdown');
+  if(!dd) return;
+  dd.classList.toggle('show');
+}
+document.addEventListener('click', function(e){
+  const wrap = document.getElementById('avatarWrap');
+  const dd = document.getElementById('avatarDropdown');
+  if(dd && wrap && !wrap.contains(e.target)){
+    dd.classList.remove('show');
+  }
+});
+
+async function showSiteStats(){
+  const dd = document.getElementById('avatarDropdown');
+  if(dd) dd.classList.remove('show');
+  let usersCount = '—';
+  let watchedCount = '—';
+  let topCountries = LANG==='ar'
+    ? ['السعودية','مصر','الإمارات','الكويت','الأردن']
+    : ['Saudi Arabia','Egypt','UAE','Kuwait','Jordan'];
+  try {
+    if(typeof firebaseDb !== 'undefined' && firebaseDb){
+      const usersSnap = await firebaseDb.collection('users').get();
+      usersCount = usersSnap.size;
+      let totalWatched = 0;
+      // sample history counts
+      for(const doc of usersSnap.docs.slice(0, 50)){
+        try {
+          const h = await firebaseDb.collection('users').doc(doc.id).collection('history').get();
+          totalWatched += h.size;
+        } catch(e){}
+      }
+      watchedCount = totalWatched > 0 ? totalWatched + '+' : Object.keys(getHistory()).length || 0;
+    } else {
+      watchedCount = Object.keys(getHistory()).length || 0;
+      usersCount = localStorage.getItem('ph_user') ? 1 : 0;
+    }
+  } catch(e){
+    console.error(e);
+    watchedCount = Object.keys(getHistory()).length || 0;
+  }
+
+  // create/show modal
+  let modal = document.getElementById('statsModal');
+  if(!modal){
+    modal = document.createElement('div');
+    modal.id = 'statsModal';
+    modal.className = 'modal-overlay';
+    document.body.appendChild(modal);
+  }
+  const countriesHTML = topCountries.map((c,i)=>`<div class="stat-country"><span class="stat-rank">${i+1}</span><span>${c}</span></div>`).join('');
+  modal.innerHTML = `
+    <div class="modal stats-modal">
+      <h2>${LANG==='ar'?'إحصائيات الموقع':'Site Statistics'}</h2>
+      <p>${LANG==='ar'?'نظرة عامة على نشاط المنصة':'Overview of platform activity'}</p>
+      <div class="stats-grid">
+        <div class="stat-box">
+          <div class="stat-num" id="statUsers">${usersCount}</div>
+          <div class="stat-label">${LANG==='ar'?'مستخدم مسجل':'Registered Users'}</div>
+        </div>
+        <div class="stat-box">
+          <div class="stat-num" id="statWatched">${watchedCount}</div>
+          <div class="stat-label">${LANG==='ar'?'حلقات تمت مشاهدتها':'Episodes Watched'}</div>
+        </div>
+        <div class="stat-box">
+          <div class="stat-num">${PODCASTS.length}</div>
+          <div class="stat-label">${LANG==='ar'?'حلقات متاحة':'Available Episodes'}</div>
+        </div>
+      </div>
+      <h3 class="stats-subtitle">${LANG==='ar'?'أكثر الدول زيارة':'Top Countries'}</h3>
+      <div class="stats-countries">${countriesHTML}</div>
+      <button class="btn btn-primary" style="width:100%;margin-top:1.25rem" onclick="document.getElementById('statsModal').classList.remove('show')">${LANG==='ar'?'إغلاق':'Close'}</button>
+    </div>`;
+  modal.classList.add('show');
+  modal.onclick = function(e){ if(e.target === modal) modal.classList.remove('show'); };
+}
+
+
 function renderNavbar(){
   const nav = document.getElementById('navbar');
   if(!nav) return;
@@ -241,12 +322,24 @@ function renderNavbar(){
 
   let avatarHTML = '';
   if(user){
-    if(user.avatar){
-      avatarHTML = `<button class="avatar-btn" onclick="location.href='profile.html'" title="${user.name||''}"><img src="${user.avatar}" alt=""/></button>`;
-    } else {
-      const letter = (user.name||user.email||'U').charAt(0).toUpperCase();
-      avatarHTML = `<button class="avatar-btn" onclick="location.href='profile.html'" title="${user.name||''}">${letter}</button>`;
-    }
+    const letter = (user.name||user.email||'U').charAt(0).toUpperCase();
+    const isAdmin = (user.email||'').toLowerCase() === 'xrammar4@gmail.com';
+    const avatarInner = user.avatar
+      ? `<img src="${user.avatar}" alt=""/>`
+      : letter;
+    avatarHTML = `
+      <div class="avatar-wrap" id="avatarWrap">
+        <button class="avatar-btn" onclick="toggleAvatarMenu(event)" title="${user.name||''}">${avatarInner}</button>
+        <div class="avatar-dropdown" id="avatarDropdown">
+          <div class="avatar-dd-header">
+            <div class="avatar-dd-name">${user.name || (LANG==='ar'?'مستخدم':'User')}</div>
+            <div class="avatar-dd-email">${user.email || ''}</div>
+          </div>
+          <a href="profile.html" class="avatar-dd-item">${LANG==='ar'?'الملف الشخصي':'Profile'}</a>
+          ${isAdmin ? `<button class="avatar-dd-item avatar-dd-stats" onclick="showSiteStats()">${LANG==='ar'?'إحصائيات الموقع':'Site Statistics'}</button>` : ''}
+          <button class="avatar-dd-item avatar-dd-logout" onclick="logout()">${LANG==='ar'?'تسجيل الخروج':'Logout'}</button>
+        </div>
+      </div>`;
   } else {
     avatarHTML = `<button class="avatar-btn" onclick="openAuthModal()" title="تسجيل الدخول">?</button>`;
   }
