@@ -33,21 +33,29 @@
 
           <!-- Floating badges (these move) -->
           <div class="float-badge badge-top">
-            <span class="badge-icon">▶</span>
+            <span class="badge-icon"><svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor" aria-hidden="true"><path d="M8 5v14l11-7z"/></svg></span>
             <div>
-              <strong>1000+</strong>
+              <strong>70+</strong>
               <small>حلقة مميزة</small>
             </div>
           </div>
           <div class="float-badge badge-bottom">
-            <span class="badge-icon green">+</span>
+            <span class="badge-icon green"><svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor" aria-hidden="true"><path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/></svg></span>
             <div>
-              <strong>+200</strong>
-              <small>بودكاست</small>
+              <strong>10+</strong>
+              <small>تصنيفات</small>
             </div>
           </div>
-          <div class="float-icon icon-play">▶</div>
-          <div class="float-icon icon-award">★</div>
+          <div class="float-badge badge-mid">
+            <span class="badge-icon blue"><svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor" aria-hidden="true"><path d="M12 3a9 9 0 0 0-9 9v7c0 1.1.9 2 2 2h2v-8H5v-1a7 7 0 0 1 14 0v1h-2v8h2c1.1 0 2-.9 2-2v-7a9 9 0 0 0-9-9z"/></svg></span>
+            <div>
+              <strong>مجاني</strong>
+              <small>100% بدون اشتراك</small>
+            </div>
+          </div>
+          <div class="float-icon icon-play"><svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor" aria-hidden="true"><path d="M8 5v14l11-7z"/></svg></div>
+          <div class="float-icon icon-award"><svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor" aria-hidden="true"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/></svg></div>
+          <div class="float-icon icon-users"><svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor" aria-hidden="true"><path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5s-3 1.34-3 3 1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z"/></svg></div>
         </div>
         <div class="brand-watermark">مسار</div>
       </div>
@@ -60,7 +68,7 @@
         <div class="search-box modern-search">
           <button id="searchBtn" onclick="doSearch()">ابحث الآن</button>
           <input type="text" id="searchInput" placeholder="ابحث عن حلقة (مثال: تطوير الذات)..." onkeypress="if(event.key==='Enter')doSearch()"/>
-          <span class="search-icon">⌕</span>
+          <span class="search-icon"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg></span>
         </div>
 
         <div class="hero-badges" id="badges">
@@ -74,10 +82,26 @@
 
   <section class="stats">
     <div class="stats-grid">
-      <div><div class="stat-num" id="stat1">100%</div><div class="stat-label" id="stat1l">محتوى مجاني</div></div>
-      <div><div class="stat-num" id="stat2">24</div><div class="stat-label" id="stat2l">تصنيف مختلف</div></div>
-      <div><div class="stat-num" id="stat3">359</div><div class="stat-label" id="stat3l">حلقة متاحة</div></div>
-      <div><div class="stat-num" id="stat4">12,000+</div><div class="stat-label" id="stat4l">مشاهدة للحلقات</div></div>
+      <div class="stat-card">
+        <div class="stat-icon"><svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor" aria-hidden="true"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg></div>
+        <div class="stat-num" id="stat1">100%</div>
+        <div class="stat-label" id="stat1l">محتوى مجاني</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon"><svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor" aria-hidden="true"><path d="M10 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2h-8l-2-2z"/></svg></div>
+        <div class="stat-num" id="stat2">10</div>
+        <div class="stat-label" id="stat2l">تصنيف مختلف</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon"><svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor" aria-hidden="true"><path d="M12 3a9 9 0 0 0-9 9v7c0 1.1.9 2 2 2h2v-8H5v-1a7 7 0 0 1 14 0v1h-2v8h2c1.1 0 2-.9 2-2v-7a9 9 0 0 0-9-9z"/></svg></div>
+        <div class="stat-num" id="stat3">70</div>
+        <div class="stat-label" id="stat3l">حلقة متاحة</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon"><svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor" aria-hidden="true"><path d="M8 5v14l11-7z"/></svg></div>
+        <div class="stat-num" id="stat4">12K+</div>
+        <div class="stat-label" id="stat4l">مشاهدة للحلقات</div>
+      </div>
     </div>
   </section>
 
