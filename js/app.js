@@ -657,7 +657,7 @@ function renderHome(){
     document.getElementById('stat2l').textContent = 'تصنيف مختلف';
     document.getElementById('stat3').textContent = PODCASTS.length;
     document.getElementById('stat3l').textContent = 'حلقة متاحة';
-    document.getElementById('stat4').textContent = '12,000+';
+    document.getElementById('stat4').textContent = '12K+';
     document.getElementById('stat4l').textContent = 'مشاهدة للحلقات';
   } else {
     document.getElementById('heroTitle').innerHTML = t('hero1')+'<br><span>'+t('hero2')+'</span>';
@@ -671,7 +671,7 @@ function renderHome(){
     document.getElementById('stat2l').textContent = t('sCats');
     document.getElementById('stat3').textContent = PODCASTS.length;
     document.getElementById('stat3l').textContent = t('sPodcasts');
-    document.getElementById('stat4').textContent = '12,000+';
+    document.getElementById('stat4').textContent = '12K+';
     document.getElementById('stat4l').textContent = 'Views';
   }
   document.getElementById('browseTitle').textContent = t('browse');
