@@ -353,7 +353,7 @@ function renderNavbar(){
   nav.innerHTML = `
   <div class="nav-inner">
     <a href="/" class="logo">
-      <img src="img/logo.png" alt="مسار" class="logo-img"/>
+      <img src="logo.png" alt="مسار" class="logo-img"/>
     </a>
     <div class="nav-links" id="navLinks">
       <a href="index.html" class="${isHome?'active':''}">${t('home')}</a>
@@ -597,7 +597,7 @@ function renderFooter(){
   <div class="footer-inner">
     <div>
       <div class="logo" style="margin-bottom:1rem;display:flex;align-items:center;gap:0.5rem">
-        <img src="img/logo.png" alt="مسار" class="logo-img" style="height:44px;"/>
+        <img src="logo.png" alt="مسار" class="logo-img" style="height:44px;"/>
       </div>
       <p style="max-width:360px;font-size:0.9rem">${t('aboutText')}</p>
     </div>
