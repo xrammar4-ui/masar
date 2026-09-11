@@ -689,7 +689,7 @@ function renderHome(){
   // filter chips
   const filters = document.getElementById('filters');
   filters.innerHTML = `<button class="chip active" data-cat="all" onclick="filterHome('all',this)">${t('all')}</button>` +
-    ['technology','selfdev','culture','business'].map(c=>`<button class="chip" data-cat="${c}" onclick="filterHome('${c}',this)">${catLabel(c)}</button>`).join('');
+    ['selfdev','culture','business','health','religion'].map(c=>`<button class="chip" data-cat="${c}" onclick="filterHome('${c}',this)">${catLabel(c)}</button>`).join('');
 
   filterHome('all');
 }
@@ -708,7 +708,14 @@ function filterHome(cat, btn){
   }
   const grid = document.getElementById('grid');
   if(!list.length){ grid.innerHTML = `<div class="empty">${t('noRes')}</div>`; return; }
-  grid.innerHTML = list.slice(0,24).map(cardHTML).join('');
+  // عرض عدد أكبر من الحلقات (كان محدود بـ 24)
+  const limit = 120;
+  grid.innerHTML = list.slice(0, limit).map(cardHTML).join('');
+  if (list.length > limit) {
+    grid.innerHTML += `<div class="empty" style="grid-column:1/-1;padding:20px;text-align:center;opacity:.7">
+      عرض ${limit} من أصل ${list.length} حلقة — استخدم البحث أو صفحة التصنيفات لرؤية المزيد
+    </div>`;
+  }
 }
 
 function doSearch(){
