@@ -163,35 +163,29 @@ img { max-width: 100%; display: block; }
   max-width: 1000px;
   margin: 0 auto;
   display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 0.85rem;
-}
-@media (min-width: 640px) {
-  .stats-grid {
-    grid-template-columns: repeat(4, 1fr);
-    gap: 1.1rem;
-  }
+  grid-template-columns: repeat(4, 1fr);
+  gap: 0.7rem;
 }
 .stat-card {
   background: #fff;
   border: 1px solid #e2e8f0;
-  border-radius: 18px;
-  padding: 1.35rem 0.75rem;
+  border-radius: 16px;
+  padding: 1rem 0.5rem;
   text-align: center;
   box-shadow: 0 4px 16px rgba(15,23,42,0.04);
   transition: transform 0.25s, box-shadow 0.25s, border-color 0.25s;
-  aspect-ratio: 1 / 1;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  min-height: 0;
+  min-height: 110px;
 }
 @media (min-width: 640px) {
+  .stats-grid { gap: 1.1rem; }
   .stat-card {
-    aspect-ratio: auto;
     min-height: 140px;
     padding: 1.5rem 1rem;
+    border-radius: 18px;
   }
 }
 .stat-card:hover {
@@ -542,7 +536,7 @@ img { max-width: 100%; display: block; }
   align-items: center;
 }
 .logo img.logo-img {
-  height: 70px;
+  height: 36px;
   width: auto;
   max-width: 160px;
   object-fit: contain;
@@ -1757,16 +1751,61 @@ body.rtl .history-pct { text-align: right; }
 }
 
 
-/* ===== ظهور تدريجي بعد اللودينج ===== */
+/* ===== ظهور تدريجي من الجنب بعد اللودينج ===== */
 body.page-loading > *:not(.site-loader) {
   opacity: 0;
+  pointer-events: none;
 }
-body.page-ready > *:not(.site-loader) {
-  animation: pageFadeIn 0.85s ease forwards;
+
+body.page-ready .navbar {
+  animation: slideInFromTop 0.7s cubic-bezier(0.22, 1, 0.36, 1) both;
 }
-@keyframes pageFadeIn {
-  from { opacity: 0; transform: translateY(10px); }
-  to { opacity: 1; transform: translateY(0); }
+body.page-ready .hero {
+  animation: slideInFromSide 0.8s cubic-bezier(0.22, 1, 0.36, 1) 0.1s both;
+}
+body.page-ready .stats {
+  animation: slideInFromSide 0.8s cubic-bezier(0.22, 1, 0.36, 1) 0.22s both;
+}
+body.page-ready .stats .stat-card:nth-child(1) {
+  animation: cardPop 0.55s cubic-bezier(0.22, 1, 0.36, 1) 0.35s both;
+}
+body.page-ready .stats .stat-card:nth-child(2) {
+  animation: cardPop 0.55s cubic-bezier(0.22, 1, 0.36, 1) 0.45s both;
+}
+body.page-ready .stats .stat-card:nth-child(3) {
+  animation: cardPop 0.55s cubic-bezier(0.22, 1, 0.36, 1) 0.55s both;
+}
+body.page-ready .stats .stat-card:nth-child(4) {
+  animation: cardPop 0.55s cubic-bezier(0.22, 1, 0.36, 1) 0.65s both;
+}
+body.page-ready .section {
+  animation: slideInFromSide 0.85s cubic-bezier(0.22, 1, 0.36, 1) 0.35s both;
+}
+body.page-ready .footer {
+  animation: slideInFromSide 0.8s cubic-bezier(0.22, 1, 0.36, 1) 0.5s both;
+}
+
+@keyframes slideInFromTop {
+  from { opacity: 0; transform: translateY(-24px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+@keyframes slideInFromSide {
+  from { opacity: 0; transform: translateX(40px); }
+  to   { opacity: 1; transform: translateX(0); }
+}
+body.rtl.page-ready .hero,
+body.rtl.page-ready .stats,
+body.rtl.page-ready .section,
+body.rtl.page-ready .footer {
+  animation-name: slideInFromSideRTL;
+}
+@keyframes slideInFromSideRTL {
+  from { opacity: 0; transform: translateX(-40px); }
+  to   { opacity: 1; transform: translateX(0); }
+}
+@keyframes cardPop {
+  from { opacity: 0; transform: translateY(20px) scale(0.92); }
+  to   { opacity: 1; transform: translateY(0) scale(1); }
 }
 
 /* ===== Developed By ===== */
@@ -1793,12 +1832,20 @@ body.page-ready > *:not(.site-loader) {
   text-decoration: underline;
 }
 
-/* Mobile tweaks for stats */
+/* Mobile tweaks for stats - keep 4 in a row */
 @media (max-width: 480px) {
-  .stats { padding: 1.1rem 0.75rem 1.5rem; }
-  .stats-grid { gap: 0.65rem; }
-  .stat-card { padding: 1rem 0.5rem; border-radius: 14px; }
-  .stat-icon { width: 36px; height: 36px; margin-bottom: 0.45rem; }
-  .stat-num { font-size: 1.35rem; }
-  .stat-label { font-size: 0.7rem; }
+  .stats { padding: 1rem 0.6rem 1.35rem; }
+  .stats-grid {
+    grid-template-columns: repeat(4, 1fr);
+    gap: 0.45rem;
+  }
+  .stat-card {
+    padding: 0.7rem 0.25rem;
+    border-radius: 12px;
+    min-height: 95px;
+  }
+  .stat-icon { width: 30px; height: 30px; margin-bottom: 0.3rem; border-radius: 8px; }
+  .stat-icon svg { width: 14px; height: 14px; }
+  .stat-num { font-size: 1.05rem; }
+  .stat-label { font-size: 0.58rem; line-height: 1.25; }
 }
