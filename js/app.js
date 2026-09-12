@@ -204,8 +204,12 @@ function renderMyEpisodes(){
 
 // ========== شاشة التحميل ==========
 function showLoadingScreen(){
-  if(sessionStorage.getItem('ph_loaded') === '1') return;
+  if(sessionStorage.getItem('ph_loaded') === '1') {
+    document.body.classList.add('page-ready');
+    return;
+  }
   if(document.getElementById('siteLoader')) return;
+  document.body.classList.add('page-loading');
   var overlay = document.createElement('div');
   overlay.id = 'siteLoader';
   overlay.className = 'site-loader';
@@ -217,20 +221,63 @@ function showLoadingScreen(){
     sessionStorage.setItem('ph_loaded', '1');
     overlay.classList.add('hide');
     document.body.style.overflow = '';
-    setTimeout(function(){ if(overlay.parentNode) overlay.remove(); }, 600);
+    document.body.classList.remove('page-loading');
+    document.body.classList.add('page-ready');
+    // start counters after page appears
+    setTimeout(animateStatCounters, 400);
+    setTimeout(function(){ if(overlay.parentNode) overlay.remove(); }, 700);
   };
   if(video){
     video.addEventListener('ended', hide);
     video.addEventListener('error', hide);
-    setTimeout(hide, 11000);
+    setTimeout(hide, 6000); // short intro ~5s + buffer
   } else {
-    setTimeout(hide, 1500);
+    setTimeout(hide, 1200);
   }
 }
 if(document.readyState === 'loading'){
   document.addEventListener('DOMContentLoaded', showLoadingScreen);
 } else {
   showLoadingScreen();
+}
+
+// ===== عداد الإحصائيات =====
+function animateStatCounters(){
+  function animate(el, target, suffix, duration){
+    if(!el) return;
+    var start = 0;
+    var startTime = null;
+    function step(ts){
+      if(!startTime) startTime = ts;
+      var p = Math.min((ts - startTime) / duration, 1);
+      // easeOut
+      p = 1 - Math.pow(1 - p, 3);
+      var val = Math.floor(start + (target - start) * p);
+      el.textContent = val.toLocaleString() + (suffix || '');
+      if(p < 1) requestAnimationFrame(step);
+      else el.textContent = target.toLocaleString() + (suffix || '');
+    }
+    requestAnimationFrame(step);
+  }
+  // 1: 100% free
+  var s1 = document.getElementById('stat1');
+  if(s1) animate(s1, 100, '%', 1200);
+  // 2: categories count
+  var s2 = document.getElementById('stat2');
+  if(s2) animate(s2, Object.keys(CATEGORIES).length, '', 1000);
+  // 3: episodes
+  var s3 = document.getElementById('stat3');
+  if(s3) animate(s3, PODCASTS.length, '', 1800);
+  // 4: views-like number
+  var s4 = document.getElementById('stat4');
+  if(s4) animate(s4, 12, 'K+', 1400);
+}
+
+// if page already loaded (no intro), still run counters
+if(sessionStorage.getItem('ph_loaded') === '1'){
+  document.addEventListener('DOMContentLoaded', function(){
+    setTimeout(animateStatCounters, 300);
+  });
 }
 
 
@@ -613,7 +660,10 @@ function renderFooter(){
       <p style="font-size:0.85rem;opacity:0.7">${t('discText')}</p>
     </div>
   </div>
-  <div class="footer-bottom">${t('copy')}</div>`;
+  <div class="footer-bottom">
+    <div>${t('copy')}</div>
+    <div class="dev-credit">Developed By <a href="https://www.instagram.com/9lilx.8" target="_blank" rel="noopener noreferrer">AMMaR</a></div>
+  </div>`;
 }
 
 // ===== About =====
@@ -657,13 +707,13 @@ function renderHome(){
     document.getElementById('searchBtn').textContent = 'ابحث الآن';
     document.getElementById('searchInput').placeholder = 'ابحث عن حلقة (مثال: تطوير الذات)...';
     document.getElementById('badges').innerHTML = '<span>✓ محتوى مجاني</span><span>✓ فيديو عالي الجودة</span><span>✓ محتوى متنوع</span>';
-    document.getElementById('stat1').textContent = '100%';
+    document.getElementById('stat1').textContent = '0%';
     document.getElementById('stat1l').textContent = 'محتوى مجاني';
-    document.getElementById('stat2').textContent = Object.keys(CATEGORIES).length;
+    document.getElementById('stat2').textContent = '0';
     document.getElementById('stat2l').textContent = 'تصنيف مختلف';
-    document.getElementById('stat3').textContent = PODCASTS.length;
+    document.getElementById('stat3').textContent = '0';
     document.getElementById('stat3l').textContent = 'حلقة متاحة';
-    document.getElementById('stat4').textContent = '12K+';
+    document.getElementById('stat4').textContent = '0';
     document.getElementById('stat4l').textContent = 'مشاهدة للحلقات';
   } else {
     document.getElementById('heroTitle').innerHTML = t('hero1')+'<br><span>'+t('hero2')+'</span>';
@@ -671,13 +721,13 @@ function renderHome(){
     document.getElementById('searchInput').placeholder = t('searchPh');
     document.getElementById('searchBtn').textContent = t('search');
     document.getElementById('badges').innerHTML = `<span>✓ ${t('free')}</span><span>✓ ${t('hd')}</span><span>✓ ${t('multi')}</span>`;
-    document.getElementById('stat1').textContent = '100%';
+    document.getElementById('stat1').textContent = '0%';
     document.getElementById('stat1l').textContent = t('sFree');
-    document.getElementById('stat2').textContent = Object.keys(CATEGORIES).length;
+    document.getElementById('stat2').textContent = '0';
     document.getElementById('stat2l').textContent = t('sCats');
-    document.getElementById('stat3').textContent = PODCASTS.length;
+    document.getElementById('stat3').textContent = '0';
     document.getElementById('stat3l').textContent = t('sPodcasts');
-    document.getElementById('stat4').textContent = '12K+';
+    document.getElementById('stat4').textContent = '0';
     document.getElementById('stat4l').textContent = 'Views';
   }
   document.getElementById('browseTitle').textContent = t('browse');
