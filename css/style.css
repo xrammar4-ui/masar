@@ -92,7 +92,7 @@ img { max-width: 100%; display: block; }
 .hero {
   background: linear-gradient(135deg, #7c2d12 0%, #c2410c 40%, #f97316 100%);
   color: white;
-  padding: 4rem 1rem 5rem;
+  padding: 2rem 1rem 2.25rem;
   text-align: center;
   position: relative;
   overflow: hidden;
@@ -157,7 +157,7 @@ img { max-width: 100%; display: block; }
 .stats {
   background: linear-gradient(180deg, #fff 0%, #f8fafc 100%);
   border-bottom: 1px solid #e2e8f0;
-  padding: 1.5rem 1rem 2rem;
+  padding: 0.75rem 1rem 1.1rem;
 }
 .stats-grid {
   max-width: 1000px;
@@ -230,7 +230,7 @@ img { max-width: 100%; display: block; }
 .section {
   max-width: 1200px;
   margin: 0 auto;
-  padding: 2.5rem 1rem;
+  padding: 1.5rem 1rem 2rem;
 }
 .section-header {
   display: flex;
@@ -727,11 +727,19 @@ body.ltr .avatar-dd-item { text-align: left; }
 
 /* Stats modal */
 .stats-modal { max-width: 420px; }
-.stats-grid {
+.stats-modal .stats-grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   gap: 0.75rem;
   margin: 1.25rem 0;
+}
+/* homepage stats always 4 in a row */
+.stats > .stats-grid {
+  display: grid !important;
+  grid-template-columns: repeat(4, 1fr) !important;
+  gap: 0.7rem;
+  max-width: 1000px;
+  margin: 0 auto;
 }
 .stat-box {
   background: #f8fafc;
@@ -889,7 +897,7 @@ body.ltr .avatar-dd-item { text-align: left; }
 .hero-modern {
   background: #ffffff;
   color: #0f172a;
-  padding: 2.25rem 1rem 2.5rem;
+  padding: 1.25rem 1rem 1rem;
   position: relative;
   overflow: hidden;
 }
@@ -914,7 +922,7 @@ body.ltr .avatar-dd-item { text-align: left; }
 .hero-visual {
   flex: 1;
   position: relative;
-  min-height: 380px;
+  min-height: 300px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -1092,7 +1100,7 @@ body.ltr .avatar-dd-item { text-align: left; }
   .hero-modern p { margin-left: auto; margin-right: auto; }
   .modern-search { margin-left: auto; margin-right: auto; }
   .hero-modern .hero-badges { justify-content: center; }
-  .hero-visual { min-height: 320px; }
+  .hero-visual { min-height: 260px; }
 }
 
 /* Floating animation ONLY for badges/icons - images stay still */
@@ -1834,7 +1842,7 @@ body.rtl.page-ready .footer {
 
 /* Mobile tweaks for stats - keep 4 in a row */
 @media (max-width: 480px) {
-  .stats { padding: 1rem 0.6rem 1.35rem; }
+  .stats { padding: 0.6rem 0.6rem 0.9rem; }
   .stats-grid {
     grid-template-columns: repeat(4, 1fr);
     gap: 0.45rem;
