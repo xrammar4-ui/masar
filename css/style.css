@@ -1107,7 +1107,7 @@ body.ltr .avatar-dd-item { text-align: left; }
 .hero-visual {
   flex: 1;
   position: relative;
-  min-height: 340px;
+  min-height: 380px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -1115,77 +1115,79 @@ body.ltr .avatar-dd-item { text-align: left; }
 
 .hosts-composition {
   position: relative;
-  width: 420px;
-  height: 460px;
+  width: 380px;
+  height: 400px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
-.glow-circle {
-  position: absolute;
-  top: 52%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  width: 340px;
-  height: 340px;
-  border-radius: 50%;
-  background: radial-gradient(circle, rgba(249,115,22,0.14) 0%, rgba(249,115,22,0.04) 45%, transparent 70%);
-  z-index: 0;
-}
-.glow-ring {
-  position: absolute;
-  top: 52%;
-  left: 50%;
-  transform: translate(-50%, -50%);
+/* Circle frame for main host */
+.host-circle-wrap {
+  position: relative;
   width: 300px;
   height: 300px;
-  border-radius: 50%;
-  border: 1.5px solid rgba(249,115,22,0.15);
-  z-index: 0;
-}
-
-.host-figure {
-  position: absolute;
-  overflow: visible;
-  background: transparent;
   z-index: 2;
 }
-.host-figure img {
-  width: 100%;
-  height: 100%;
-  object-fit: contain;
-  object-position: bottom center;
-  display: block;
-  filter: drop-shadow(0 20px 32px rgba(15,23,42,0.18));
+
+.host-circle-ring {
+  position: absolute;
+  inset: -14px;
+  border-radius: 50%;
+  border: 1.5px solid rgba(249, 115, 22, 0.2);
+  background: radial-gradient(circle, rgba(249,115,22,0.08) 0%, transparent 70%);
+  z-index: 0;
+  pointer-events: none;
 }
 
-.host-front {
-  width: 240px;
-  height: 370px;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -48%);
-  z-index: 5;
-}
-.host-back {
-  width: 150px;
-  height: 230px;
-  opacity: 0.92;
+.host-circle {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  overflow: hidden;
+  background: linear-gradient(160deg, #fff7ed 0%, #ffedd5 40%, #fed7aa 100%);
+  box-shadow:
+    0 20px 50px rgba(15, 23, 42, 0.12),
+    0 0 0 6px rgba(255, 255, 255, 0.9),
+    0 0 0 8px rgba(249, 115, 22, 0.12);
   z-index: 1;
 }
-.host-left {
-  top: 70px;
-  right: 8px;
-  transform: rotate(2deg);
+
+.host-circle img {
+  position: absolute;
+  width: 115%;
+  height: 130%;
+  object-fit: cover;
+  object-position: center 12%;
+  top: 4%;
+  left: 50%;
+  transform: translateX(-50%);
+  display: block;
 }
-.host-right {
-  top: 90px;
-  left: 8px;
-  transform: rotate(-2deg);
+
+/* Soft fade/shadow at bottom so cut-off looks intentional */
+.host-circle-fade {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 42%;
+  background: linear-gradient(
+    to top,
+    rgba(15, 23, 42, 0.22) 0%,
+    rgba(15, 23, 42, 0.08) 35%,
+    transparent 100%
+  );
+  border-radius: 0 0 50% 50%;
+  pointer-events: none;
+  z-index: 2;
 }
 
 /* Floating cards */
 .float-card {
   position: absolute;
-  background: rgba(255,255,255,0.92);
+  background: rgba(255,255,255,0.95);
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
   border-radius: 16px;
@@ -1224,18 +1226,18 @@ body.ltr .avatar-dd-item { text-align: left; }
 }
 
 .card-episodes {
-  top: 18px;
-  left: -8px;
+  top: 8px;
+  left: -4px;
   animation-delay: 0s;
 }
 .card-free {
-  top: 48%;
-  left: -28px;
+  top: 46%;
+  left: -36px;
   animation-delay: 0.6s;
 }
 .card-cats {
-  bottom: 48px;
-  right: -18px;
+  bottom: 28px;
+  right: -12px;
   animation-delay: 0.3s;
 }
 
@@ -1253,13 +1255,13 @@ body.ltr .avatar-dd-item { text-align: left; }
   animation: float-y 5.2s ease-in-out infinite;
 }
 .play-pill {
-  top: 100px;
-  left: -45px;
+  top: 90px;
+  left: -48px;
   animation-delay: 0.9s;
 }
 .star-pill {
-  bottom: 140px;
-  right: -30px;
+  bottom: 120px;
+  right: -36px;
   color: #f59e0b;
   animation-delay: 1.2s;
 }
@@ -1282,22 +1284,21 @@ body.ltr .avatar-dd-item { text-align: left; }
   .modern-search { margin-left: auto; margin-right: auto; }
   .hero-modern .hero-badges { justify-content: center; }
   .hero-mini-stats { justify-content: center; }
-  .hero-visual { min-height: 280px; }
+  .hero-visual { min-height: 300px; }
   .hosts-composition {
-    width: 300px;
-    height: 360px;
+    width: 280px;
+    height: 300px;
   }
-  .glow-circle { width: 240px; height: 240px; }
-  .glow-ring { width: 210px; height: 210px; }
-  .host-front { width: 175px; height: 270px; }
-  .host-back { width: 110px; height: 165px; }
-  .host-left { top: 50px; right: 0; }
-  .host-right { top: 65px; left: 0; }
-  .card-episodes { left: -4px; top: 10px; }
-  .card-free { left: -12px; }
-  .card-cats { right: -8px; bottom: 30px; }
-  .play-pill { left: -20px; }
-  .star-pill { right: -14px; }
+  .host-circle-wrap {
+    width: 240px;
+    height: 240px;
+  }
+  .host-circle-ring { inset: -10px; }
+  .card-episodes { left: -2px; top: 4px; }
+  .card-free { left: -20px; }
+  .card-cats { right: -4px; bottom: 16px; }
+  .play-pill { left: -24px; top: 70px; }
+  .star-pill { right: -18px; bottom: 90px; }
 }
 
 @media (max-width: 480px) {
