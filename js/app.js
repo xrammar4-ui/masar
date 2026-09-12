@@ -707,28 +707,25 @@ function renderHome(){
     document.getElementById('searchBtn').textContent = 'ابحث الآن';
     document.getElementById('searchInput').placeholder = 'ابحث عن حلقة (مثال: تطوير الذات)...';
     document.getElementById('badges').innerHTML = '<span>✓ محتوى مجاني</span><span>✓ فيديو عالي الجودة</span><span>✓ محتوى متنوع</span>';
-    document.getElementById('stat1').textContent = '0%';
-    document.getElementById('stat1l').textContent = 'محتوى مجاني';
-    document.getElementById('stat2').textContent = '0';
-    document.getElementById('stat2l').textContent = 'تصنيف مختلف';
-    document.getElementById('stat3').textContent = '0';
-    document.getElementById('stat3l').textContent = 'حلقة متاحة';
-    document.getElementById('stat4').textContent = '0';
-    document.getElementById('stat4l').textContent = 'مشاهدة للحلقات';
   } else {
     document.getElementById('heroTitle').innerHTML = t('hero1')+'<br><span>'+t('hero2')+'</span>';
     document.getElementById('heroDesc').textContent = t('heroDesc');
     document.getElementById('searchInput').placeholder = t('searchPh');
     document.getElementById('searchBtn').textContent = t('search');
     document.getElementById('badges').innerHTML = `<span>✓ ${t('free')}</span><span>✓ ${t('hd')}</span><span>✓ ${t('multi')}</span>`;
-    document.getElementById('stat1').textContent = '0%';
-    document.getElementById('stat1l').textContent = t('sFree');
-    document.getElementById('stat2').textContent = '0';
-    document.getElementById('stat2l').textContent = t('sCats');
-    document.getElementById('stat3').textContent = '0';
-    document.getElementById('stat3l').textContent = t('sPodcasts');
-    document.getElementById('stat4').textContent = '0';
-    document.getElementById('stat4l').textContent = 'Views';
+  }
+  // stats section optional (may be removed from homepage)
+  const _set = (id, val) => { const el = document.getElementById(id); if(el) el.textContent = val; };
+  if(LANG === 'ar'){
+    _set('stat1','0%'); _set('stat1l','محتوى مجاني');
+    _set('stat2','0'); _set('stat2l','تصنيف مختلف');
+    _set('stat3','0'); _set('stat3l','حلقة متاحة');
+    _set('stat4','0'); _set('stat4l','مشاهدة للحلقات');
+  } else {
+    _set('stat1','0%'); _set('stat1l',t('sFree'));
+    _set('stat2','0'); _set('stat2l',t('sCats'));
+    _set('stat3','0'); _set('stat3l',t('sPodcasts'));
+    _set('stat4','0'); _set('stat4l','Views');
   }
   document.getElementById('browseTitle').textContent = t('browse');
   document.getElementById('viewAll').textContent = t('viewAll');
