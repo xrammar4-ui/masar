@@ -1,6 +1,28 @@
 // اللغة الحالية
 let LANG = localStorage.getItem('ph_lang') || 'ar';
 
+// الوضع الداكن
+(function initTheme(){
+  const saved = localStorage.getItem('ph_theme');
+  const prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+  const theme = saved || (prefersDark ? 'dark' : 'light');
+  document.documentElement.setAttribute('data-theme', theme);
+})();
+
+function toggleTheme(){
+  const current = document.documentElement.getAttribute('data-theme') || 'light';
+  const next = current === 'dark' ? 'light' : 'dark';
+  document.documentElement.setAttribute('data-theme', next);
+  localStorage.setItem('ph_theme', next);
+  const btn = document.getElementById('themeToggle');
+  if(btn){
+    btn.innerHTML = next === 'dark'
+      ? '<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>'
+      : '<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>';
+    btn.title = next === 'dark' ? (LANG==='ar'?'الوضع الفاتح':'Light mode') : (LANG==='ar'?'الوضع الداكن':'Dark mode');
+  }
+}
+
 const T = {
   ar: {
     brand:'مسار', home:'الرئيسية', categories:'التصنيفات',
@@ -414,6 +436,11 @@ function renderNavbar(){
         <input type="text" placeholder="${t('searchPh')}" id="navSearchInput" onkeypress="if(event.key==='Enter'){location.href='categories.html?q='+encodeURIComponent(this.value)}"/>
         <span>K</span>
       </div>
+      <button class="theme-toggle" id="themeToggle" onclick="toggleTheme()" title="${(document.documentElement.getAttribute('data-theme')==='dark') ? (LANG==='ar'?'الوضع الفاتح':'Light mode') : (LANG==='ar'?'الوضع الداكن':'Dark mode')}">
+        ${(document.documentElement.getAttribute('data-theme')==='dark')
+          ? '<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>'
+          : '<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>'}
+      </button>
       <button class="btn btn-ghost" onclick="setLang(LANG==='ar'?'en':'ar')">${LANG==='ar'?'EN':'عربي'}</button>
       ${avatarHTML}
       <button class="mobile-menu-btn" onclick="document.getElementById('navLinks').classList.toggle('open')">☰</button>
