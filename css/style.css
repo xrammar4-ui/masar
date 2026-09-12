@@ -536,7 +536,7 @@ img { max-width: 100%; display: block; }
   align-items: center;
 }
 .logo img.logo-img {
-  height: 36px;
+  height: 70px;
   width: auto;
   max-width: 160px;
   object-fit: contain;
