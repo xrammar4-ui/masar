@@ -11,70 +11,106 @@
   <nav class="navbar" id="navbar"></nav>
 
   <section class="hero hero-modern">
+    <div class="hero-bg-orbs" aria-hidden="true">
+      <span class="orb orb-1"></span>
+      <span class="orb orb-2"></span>
+      <span class="orb orb-3"></span>
+    </div>
+
     <div class="hero-inner">
-      <!-- Visual side - standing style like Manhaj -->
+      <!-- Content side -->
+      <div class="hero-content">
+        <div class="hero-eyebrow">
+          <span class="eyebrow-dot"></span>
+          منصة البودكاست العربية الأولى
+        </div>
+
+        <h1 id="heroTitle">اكتشف أفضل البودكاستات<br>العربية مع <span>مسار</span></h1>
+        <p id="heroDesc">انضم إلى آلاف المستمعين العرب. تصفح مئات الحلقات المجانية في التطوير الذاتي، الثقافة، الأعمال، الدين وأكثر واحصل على تجربة مشاهدة عالية الجودة.</p>
+
+        <div class="search-box modern-search">
+          <span class="search-icon"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg></span>
+          <input type="text" id="searchInput" placeholder="ابحث عن حلقة (مثال: تطوير الذات)..." onkeypress="if(event.key==='Enter')doSearch()"/>
+          <button id="searchBtn" onclick="doSearch()">ابحث الآن</button>
+        </div>
+
+        <div class="hero-badges" id="badges">
+          <span><i class="check-ico">✓</i> محتوى مجاني</span>
+          <span><i class="check-ico">✓</i> فيديو عالي الجودة</span>
+          <span><i class="check-ico">✓</i> محتوى متنوع</span>
+        </div>
+
+        <div class="hero-mini-stats">
+          <div class="mini-stat">
+            <strong>70+</strong>
+            <span>حلقة مميزة</span>
+          </div>
+          <div class="mini-stat-divider"></div>
+          <div class="mini-stat">
+            <strong>10+</strong>
+            <span>تصنيفات</span>
+          </div>
+          <div class="mini-stat-divider"></div>
+          <div class="mini-stat">
+            <strong>100%</strong>
+            <span>مجاني</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Visual side -->
       <div class="hero-visual">
         <div class="hosts-composition">
-          <!-- Soft glow behind -->
+          <div class="glow-ring"></div>
           <div class="glow-circle"></div>
 
-          <!-- Back hosts -->
           <div class="host-figure host-back host-left">
             <img src="img/abumalih.png" alt="عبدالرحمن أبومالح"/>
           </div>
           <div class="host-figure host-back host-right">
             <img src="img/host3.png" alt="مضيف"/>
           </div>
-
-          <!-- Front: Yasser -->
           <div class="host-figure host-front">
             <img src="img/yasser.png" alt="ياسر الحزيمي"/>
           </div>
 
-          <!-- Floating badges (these move) -->
-          <div class="float-badge badge-top">
-            <span class="badge-icon"><svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor" aria-hidden="true"><path d="M8 5v14l11-7z"/></svg></span>
-            <div>
-              <strong>70+</strong>
+          <!-- Floating cards -->
+          <div class="float-card card-episodes">
+            <div class="fc-icon orange">
+              <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
+            </div>
+            <div class="fc-text">
+              <strong>+70</strong>
               <small>حلقة مميزة</small>
             </div>
           </div>
-          <div class="float-badge badge-bottom">
-            <span class="badge-icon green"><svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor" aria-hidden="true"><path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/></svg></span>
-            <div>
-              <strong>10+</strong>
+
+          <div class="float-card card-free">
+            <div class="fc-icon blue">
+              <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor"><path d="M12 3a9 9 0 0 0-9 9v7c0 1.1.9 2 2 2h2v-8H5v-1a7 7 0 0 1 14 0v1h-2v8h2c1.1 0 2-.9 2-2v-7a9 9 0 0 0-9-9z"/></svg>
+            </div>
+            <div class="fc-text">
+              <strong>مجاني</strong>
+              <small>بدون اشتراك</small>
+            </div>
+          </div>
+
+          <div class="float-card card-cats">
+            <div class="fc-icon green">
+              <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor"><path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/></svg>
+            </div>
+            <div class="fc-text">
+              <strong>+10</strong>
               <small>تصنيفات</small>
             </div>
           </div>
-          <div class="float-badge badge-mid">
-            <span class="badge-icon blue"><svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor" aria-hidden="true"><path d="M12 3a9 9 0 0 0-9 9v7c0 1.1.9 2 2 2h2v-8H5v-1a7 7 0 0 1 14 0v1h-2v8h2c1.1 0 2-.9 2-2v-7a9 9 0 0 0-9-9z"/></svg></span>
-            <div>
-              <strong>مجاني</strong>
-              <small>100% بدون اشتراك</small>
-            </div>
+
+          <div class="float-pill play-pill">
+            <svg viewBox="0 0 24 24" width="14" height="14" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
           </div>
-          <div class="float-icon icon-play"><svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor" aria-hidden="true"><path d="M8 5v14l11-7z"/></svg></div>
-          <div class="float-icon icon-award"><svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor" aria-hidden="true"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/></svg></div>
-          <div class="float-icon icon-users"><svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor" aria-hidden="true"><path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5s-3 1.34-3 3 1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z"/></svg></div>
-        </div>
-        <div class="brand-watermark">مسار</div>
-      </div>
-
-      <!-- Content side -->
-      <div class="hero-content">
-        <h1 id="heroTitle">اكتشف أفضل البودكاستات<br>العربية مع <span>مسار</span></h1>
-        <p id="heroDesc">انضم إلى آلاف المستمعين العرب. تصفح مئات الحلقات المجانية في التطوير الذاتي، الثقافة، الأعمال، الدين وأكثر واحصل على تجربة مشاهدة عالية الجودة.</p>
-        
-        <div class="search-box modern-search">
-          <button id="searchBtn" onclick="doSearch()">ابحث الآن</button>
-          <input type="text" id="searchInput" placeholder="ابحث عن حلقة (مثال: تطوير الذات)..." onkeypress="if(event.key==='Enter')doSearch()"/>
-          <span class="search-icon"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg></span>
-        </div>
-
-        <div class="hero-badges" id="badges">
-          <span>✓ محتوى مجاني</span>
-          <span>✓ فيديو عالي الجودة</span>
-          <span>✓ محتوى متنوع</span>
+          <div class="float-pill star-pill">
+            <svg viewBox="0 0 24 24" width="14" height="14" fill="currentColor"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/></svg>
+          </div>
         </div>
       </div>
     </div>
