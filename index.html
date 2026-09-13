@@ -113,18 +113,20 @@
 
 
 
-  <section class="section">
-    <div class="section-header">
-      <h2 id="browseTitle"></h2>
-      <a href="categories.html" id="viewAll" style="color:var(--primary-600);font-weight:600"></a>
-    </div>
-    <div class="chips" id="homeCats"></div>
-  </section>
-
   <section class="section" id="latestSec">
     <div class="section-header">
       <h2 id="latestTitle"></h2>
-      <div class="chips" id="filters"></div>
+      <div class="sort-wrap" id="sortWrap">
+        <button type="button" class="sort-btn" id="sortBtn" onclick="toggleSortMenu(event)" aria-haspopup="listbox" aria-expanded="false">
+          <span id="sortLabel">الأحدث</span>
+          <svg class="sort-chevron" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>
+        </button>
+        <div class="sort-menu" id="sortMenu" role="listbox" hidden>
+          <button type="button" class="sort-option active" data-sort="newest" onclick="setHomeSort('newest', this)">الأحدث</button>
+          <button type="button" class="sort-option" data-sort="oldest" onclick="setHomeSort('oldest', this)">الأقدم</button>
+          <button type="button" class="sort-option" data-sort="popular" onclick="setHomeSort('popular', this)">الأشهر</button>
+        </div>
+      </div>
     </div>
     <div class="podcast-grid" id="grid"></div>
   </section>
