@@ -2586,3 +2586,115 @@ body.ltr .card-pin {
     transform: scale(1.07) translateY(-12px);
   }
 }
+
+/* ===== Sort dropdown (مربع جنب أحدث الحلقات) ===== */
+.sort-wrap {
+  position: relative;
+  flex-shrink: 0;
+}
+.sort-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  min-width: 112px;
+  justify-content: space-between;
+  padding: 0.5rem 0.75rem;
+  border-radius: 10px;
+  border: 1.5px solid #e2e8f0;
+  background: #fff;
+  color: #334155;
+  font-family: inherit;
+  font-weight: 700;
+  font-size: 0.88rem;
+  cursor: pointer;
+  transition: 0.15s;
+  box-shadow: 0 1px 3px rgba(15, 23, 42, 0.04);
+}
+.sort-btn:hover {
+  border-color: #fb923c;
+  color: #c2410c;
+}
+.sort-btn.open {
+  border-color: #f97316;
+  color: #c2410c;
+  box-shadow: 0 0 0 3px rgba(249, 115, 22, 0.12);
+}
+.sort-chevron {
+  flex-shrink: 0;
+  transition: transform 0.2s;
+}
+.sort-btn.open .sort-chevron {
+  transform: rotate(180deg);
+}
+.sort-menu {
+  position: absolute;
+  top: calc(100% + 6px);
+  left: 0;
+  min-width: 100%;
+  background: #fff;
+  border: 1.5px solid #e2e8f0;
+  border-radius: 10px;
+  box-shadow: 0 12px 32px rgba(15, 23, 42, 0.12);
+  padding: 0.35rem;
+  z-index: 40;
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+}
+body.rtl .sort-menu {
+  left: auto;
+  right: 0;
+}
+.sort-menu[hidden] {
+  display: none !important;
+}
+.sort-option {
+  display: block;
+  width: 100%;
+  text-align: inherit;
+  border: none;
+  background: transparent;
+  padding: 0.55rem 0.75rem;
+  border-radius: 8px;
+  font-family: inherit;
+  font-weight: 600;
+  font-size: 0.88rem;
+  color: #334155;
+  cursor: pointer;
+  transition: 0.15s;
+}
+.sort-option:hover {
+  background: #fff7ed;
+  color: #c2410c;
+}
+.sort-option.active {
+  background: rgba(249, 115, 22, 0.12);
+  color: #c2410c;
+}
+
+[data-theme="dark"] .sort-btn {
+  background: #1e293b;
+  border-color: #334155;
+  color: #e2e8f0;
+}
+[data-theme="dark"] .sort-btn:hover,
+[data-theme="dark"] .sort-btn.open {
+  border-color: #f97316;
+  color: #fdba74;
+}
+[data-theme="dark"] .sort-menu {
+  background: #1e293b;
+  border-color: #334155;
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.45);
+}
+[data-theme="dark"] .sort-option {
+  color: #cbd5e1;
+}
+[data-theme="dark"] .sort-option:hover {
+  background: rgba(249, 115, 22, 0.12);
+  color: #fdba74;
+}
+[data-theme="dark"] .sort-option.active {
+  background: rgba(249, 115, 22, 0.18);
+  color: #fdba74;
+}
