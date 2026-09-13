@@ -99,37 +99,15 @@ function sortByPopularity(list){
   });
 }
 
-/** الأشهر في كل تصنيف (أول عنصر بعد الترتيب داخل نفس التصنيف) */
-function getPinnedIds(list){
-  const byCat = {};
-  list.forEach(function(p){
-    const c = p.category || 'other';
-    if(!byCat[c]) byCat[c] = [];
-    byCat[c].push(p);
-  });
-  const pinned = {};
-  Object.keys(byCat).forEach(function(c){
-    const top = sortByPopularity(byCat[c])[0];
-    if(top) pinned[top.id] = true;
-  });
-  return pinned;
-}
-
-function cardHTML(p, opts){
-  opts = opts || {};
-  const pinned = !!opts.pinned;
+function cardHTML(p){
   const fallback = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='480' height='270' viewBox='0 0 480 270'%3E%3Crect fill='%231a1a2e' width='480' height='270'/%3E%3Ccircle cx='240' cy='120' r='36' fill='%23e94560'/%3E%3Cpolygon points='230,100 230,140 260,120' fill='white'/%3E%3Ctext x='240' y='200' text-anchor='middle' fill='%23aaa' font-family='Arial' font-size='14'%3Eمسار%3C/text%3E%3C/svg%3E";
-  const pinBadge = pinned
-    ? `<span class="card-pin">${LANG==='ar'?'الأشهر':'Top'}</span>`
-    : '';
-  return `<a href="podcast.html?id=${p.id}" class="card${pinned ? ' card-pinned' : ''}">
+  return `<a href="podcast.html?id=${p.id}" class="card">
     <div class="card-thumb">
       <img src="https://i.ytimg.com/vi/${p.youtubeId}/hqdefault.jpg" 
            alt="" 
            loading="lazy"
            onerror="this.onerror=null;this.src='${fallback}'"/>
       <span class="card-duration">${p.duration}</span>
-      ${pinBadge}
       <div class="card-play"><span>▶</span></div>
     </div>
     <div class="card-body">
@@ -796,59 +774,115 @@ function renderHome(){
     _set('stat3','0'); _set('stat3l',t('sPodcasts'));
     _set('stat4','0'); _set('stat4l','Views');
   }
-  document.getElementById('browseTitle').textContent = t('browse');
-  document.getElementById('viewAll').textContent = t('viewAll');
-  document.getElementById('latestTitle').textContent = t('latest');
+  const latestEl = document.getElementById('latestTitle');
+  if(latestEl) latestEl.textContent = t('latest');
   document.getElementById('ctaTitle').textContent = t('start');
   document.getElementById('ctaDesc').textContent = t('join');
   document.getElementById('ctaBtn').textContent = t('explore');
 
-  // category chips
-  const catsEl = document.getElementById('homeCats');
-  const mainCats = Object.keys(CATEGORIES).slice(0,8);
-  catsEl.innerHTML = mainCats.map(c=>`<a href="categories.html?cat=${c}" class="chip chip-outline">${catLabel(c)}</a>`).join('');
-
-  // filter chips
-  const filters = document.getElementById('filters');
-  filters.innerHTML = `<button class="chip active" data-cat="all" onclick="filterHome('all',this)">${t('all')}</button>` +
-    ['selfdev','culture','business','health','religion'].map(c=>`<button class="chip" data-cat="${c}" onclick="filterHome('${c}',this)">${catLabel(c)}</button>`).join('');
-
-  filterHome('all');
+  // تحديث تسميات قائمة الترتيب حسب اللغة
+  updateSortUI();
+  filterHome();
 }
 
 let homeQuery = '';
+let homeSort = 'newest'; // newest | oldest | popular
 let _homeList = [];
 let _homeShown = 0;
 const PAGE_SIZE = 48;
 
-function filterHome(cat, btn){
-  if(btn){
-    document.querySelectorAll('#filters .chip').forEach(b=>b.classList.remove('active'));
-    btn.classList.add('active');
+function parseDate(d){
+  if(!d) return 0;
+  const s = String(d).trim();
+  if(/^\d{4}$/.test(s)) return Date.parse(s + '-01-01') || 0;
+  const t = Date.parse(s);
+  return isNaN(t) ? 0 : t;
+}
+
+const SORT_LABELS = {
+  ar: { newest: 'الأحدث', oldest: 'الأقدم', popular: 'الأشهر' },
+  en: { newest: 'Newest', oldest: 'Oldest', popular: 'Popular' }
+};
+
+function updateSortUI(){
+  const labels = SORT_LABELS[LANG] || SORT_LABELS.ar;
+  const sortLabel = document.getElementById('sortLabel');
+  if(sortLabel) sortLabel.textContent = labels[homeSort] || labels.newest;
+  document.querySelectorAll('#sortMenu .sort-option').forEach(function(btn){
+    const key = btn.getAttribute('data-sort');
+    btn.textContent = labels[key] || key;
+    btn.classList.toggle('active', key === homeSort);
+  });
+}
+
+function toggleSortMenu(e){
+  if(e) e.stopPropagation();
+  const menu = document.getElementById('sortMenu');
+  const btn = document.getElementById('sortBtn');
+  if(!menu || !btn) return;
+  const open = menu.hasAttribute('hidden');
+  if(open){
+    menu.removeAttribute('hidden');
+    btn.setAttribute('aria-expanded', 'true');
+    btn.classList.add('open');
+  } else {
+    menu.setAttribute('hidden', '');
+    btn.setAttribute('aria-expanded', 'false');
+    btn.classList.remove('open');
   }
-  let list = PODCASTS;
-  if(cat && cat!=='all') list = list.filter(p=>p.category===cat);
+}
+
+function closeSortMenu(){
+  const menu = document.getElementById('sortMenu');
+  const btn = document.getElementById('sortBtn');
+  if(menu) menu.setAttribute('hidden', '');
+  if(btn){
+    btn.setAttribute('aria-expanded', 'false');
+    btn.classList.remove('open');
+  }
+}
+
+function setHomeSort(sort, el){
+  homeSort = sort || 'newest';
+  updateSortUI();
+  closeSortMenu();
+  filterHome();
+}
+
+document.addEventListener('click', function(e){
+  const wrap = document.getElementById('sortWrap');
+  if(wrap && !wrap.contains(e.target)) closeSortMenu();
+});
+
+function filterHome(){
+  let list = PODCASTS.slice();
   if(homeQuery){
     const q = homeQuery.toLowerCase();
     list = list.filter(p=>txt(p.title).toLowerCase().includes(q)||txt(p.show).toLowerCase().includes(q)||txt(p.host).toLowerCase().includes(q));
   }
-  // تثبيت الأشهر أولاً في كل تصنيف + ترتيب بالمشاهدات
-  _homePinned = getPinnedIds(list);
-  list = list.slice().sort(function(a, b){
-    const ap = _homePinned[a.id] ? 1 : 0;
-    const bp = _homePinned[b.id] ? 1 : 0;
-    if(ap !== bp) return bp - ap;
-    return parseViews(b.views) - parseViews(a.views);
-  });
+  if(homeSort === 'popular'){
+    list = list.slice().sort(function(a, b){
+      return parseViews(b.views) - parseViews(a.views);
+    });
+  } else if(homeSort === 'oldest'){
+    list = list.slice().sort(function(a, b){
+      return parseDate(a.date) - parseDate(b.date);
+    });
+  } else {
+    // newest
+    list = list.slice().sort(function(a, b){
+      return parseDate(b.date) - parseDate(a.date);
+    });
+  }
+
   _homeList = list;
   _homeShown = 0;
   const grid = document.getElementById('grid');
+  if(!grid) return;
   if(!list.length){ grid.innerHTML = `<div class="empty">${t('noRes')}</div>`; return; }
   grid.innerHTML = '';
   loadMoreHome();
 }
-
-let _homePinned = {};
 
 function loadMoreHome(){
   const grid = document.getElementById('grid');
@@ -857,9 +891,7 @@ function loadMoreHome(){
   if(oldBtn) oldBtn.remove();
   const next = _homeList.slice(_homeShown, _homeShown + PAGE_SIZE);
   _homeShown += next.length;
-  grid.insertAdjacentHTML('beforeend', next.map(function(p){
-    return cardHTML(p, { pinned: !!_homePinned[p.id] });
-  }).join(''));
+  grid.insertAdjacentHTML('beforeend', next.map(cardHTML).join(''));
   if(_homeShown < _homeList.length){
     grid.insertAdjacentHTML('beforeend', `
       <div id="loadMoreBtn" style="grid-column:1/-1;text-align:center;padding:24px">
@@ -872,8 +904,9 @@ function loadMoreHome(){
 
 function doSearch(){
   homeQuery = document.getElementById('searchInput').value.trim();
-  filterHome(document.querySelector('#filters .chip.active')?.dataset.cat||'all');
-  document.getElementById('latestSec').scrollIntoView({behavior:'smooth'});
+  filterHome();
+  const sec = document.getElementById('latestSec');
+  if(sec) sec.scrollIntoView({behavior:'smooth'});
 }
 
 // ===== Categories =====
@@ -897,21 +930,12 @@ function renderCategories(){
   let _catShown = 0;
   const CAT_PAGE = 48;
 
-  let _catPinned = {};
-
   function drawGrid(){
     const q = document.getElementById('catSearch').value.trim().toLowerCase();
     let list = PODCASTS;
     if(active!=='all') list = list.filter(p=>p.category===active);
     if(q) list = list.filter(p=>txt(p.title).toLowerCase().includes(q)||txt(p.show).toLowerCase().includes(q));
-    // تثبيت الأشهر أولاً في كل تصنيف + ترتيب بالمشاهدات
-    _catPinned = getPinnedIds(list);
-    list = list.slice().sort(function(a, b){
-      const ap = _catPinned[a.id] ? 1 : 0;
-      const bp = _catPinned[b.id] ? 1 : 0;
-      if(ap !== bp) return bp - ap;
-      return parseViews(b.views) - parseViews(a.views);
-    });
+    list = sortByPopularity(list);
     _catList = list;
     _catShown = 0;
     const grid = document.getElementById('grid');
@@ -927,9 +951,7 @@ function renderCategories(){
     if(oldBtn) oldBtn.remove();
     const next = _catList.slice(_catShown, _catShown + CAT_PAGE);
     _catShown += next.length;
-    grid.insertAdjacentHTML('beforeend', next.map(function(p){
-      return cardHTML(p, { pinned: !!_catPinned[p.id] });
-    }).join(''));
+    grid.insertAdjacentHTML('beforeend', next.map(cardHTML).join(''));
     if(_catShown < _catList.length){
       grid.insertAdjacentHTML('beforeend', `
         <div id="loadMoreCatBtn" style="grid-column:1/-1;text-align:center;padding:24px">
