@@ -863,12 +863,19 @@ function closeSortMenu(){
   }
 }
 
-function setHomeSort(sort, el){
+function setHomeSort(sort){
   homeSort = sort || 'newest';
   updateSortUI();
   closeSortMenu();
   filterHome();
 }
+
+// إتاحة الدوال للـ onclick في HTML
+window.setHomeSort = setHomeSort;
+window.toggleSortMenu = toggleSortMenu;
+window.setHomeCat = setHomeCat;
+window.filterHome = filterHome;
+window.loadMoreHome = loadMoreHome;
 
 document.addEventListener('click', function(e){
   const wrap = document.getElementById('sortWrap');
@@ -882,20 +889,27 @@ function filterHome(){
   }
   if(homeQuery){
     const q = homeQuery.toLowerCase();
-    list = list.filter(p=>txt(p.title).toLowerCase().includes(q)||txt(p.show).toLowerCase().includes(q)||txt(p.host).toLowerCase().includes(q));
+    list = list.filter(function(p){
+      return txt(p.title).toLowerCase().includes(q)
+        || txt(p.show).toLowerCase().includes(q)
+        || txt(p.host).toLowerCase().includes(q);
+    });
   }
   if(homeSort === 'popular'){
-    list = list.slice().sort(function(a, b){
-      return parseViews(b.views) - parseViews(a.views);
+    list.sort(function(a, b){
+      const d = parseViews(b.views) - parseViews(a.views);
+      return d !== 0 ? d : (b.id - a.id);
     });
   } else if(homeSort === 'oldest'){
-    list = list.slice().sort(function(a, b){
-      return parseDate(a.date) - parseDate(b.date);
+    list.sort(function(a, b){
+      const d = parseDate(a.date) - parseDate(b.date);
+      return d !== 0 ? d : (a.id - b.id);
     });
   } else {
     // newest
-    list = list.slice().sort(function(a, b){
-      return parseDate(b.date) - parseDate(a.date);
+    list.sort(function(a, b){
+      const d = parseDate(b.date) - parseDate(a.date);
+      return d !== 0 ? d : (b.id - a.id);
     });
   }
 
@@ -903,7 +917,10 @@ function filterHome(){
   _homeShown = 0;
   const grid = document.getElementById('grid');
   if(!grid) return;
-  if(!list.length){ grid.innerHTML = `<div class="empty">${t('noRes')}</div>`; return; }
+  if(!list.length){
+    grid.innerHTML = `<div class="empty">${t('noRes')}</div>`;
+    return;
+  }
   grid.innerHTML = '';
   loadMoreHome();
 }
