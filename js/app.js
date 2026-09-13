@@ -780,16 +780,37 @@ function renderHome(){
   document.getElementById('ctaDesc').textContent = t('join');
   document.getElementById('ctaBtn').textContent = t('explore');
 
-  // تحديث تسميات قائمة الترتيب حسب اللغة
+  // تصنيفات نوع البودكاست على الجهة المقابلة للعنوان
+  renderHomeCatFilters();
   updateSortUI();
   filterHome();
 }
 
 let homeQuery = '';
 let homeSort = 'newest'; // newest | oldest | popular
+let homeCat = 'all';
 let _homeList = [];
 let _homeShown = 0;
 const PAGE_SIZE = 48;
+
+function renderHomeCatFilters(){
+  const el = document.getElementById('homeCatFilters');
+  if(!el) return;
+  const cats = ['all', ...Object.keys(CATEGORIES).slice(0, 8)];
+  el.innerHTML = cats.map(function(c){
+    const label = c === 'all' ? t('all') : catLabel(c);
+    const active = c === homeCat ? ' active' : '';
+    return `<button type="button" class="chip${active}" data-cat="${c}" onclick="setHomeCat('${c}')">${label}</button>`;
+  }).join('');
+}
+
+function setHomeCat(cat){
+  homeCat = cat || 'all';
+  document.querySelectorAll('#homeCatFilters .chip').forEach(function(b){
+    b.classList.toggle('active', b.getAttribute('data-cat') === homeCat);
+  });
+  filterHome();
+}
 
 function parseDate(d){
   if(!d) return 0;
@@ -856,6 +877,9 @@ document.addEventListener('click', function(e){
 
 function filterHome(){
   let list = PODCASTS.slice();
+  if(homeCat && homeCat !== 'all'){
+    list = list.filter(function(p){ return p.category === homeCat; });
+  }
   if(homeQuery){
     const q = homeQuery.toLowerCase();
     list = list.filter(p=>txt(p.title).toLowerCase().includes(q)||txt(p.show).toLowerCase().includes(q)||txt(p.host).toLowerCase().includes(q));
