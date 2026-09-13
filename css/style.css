@@ -2698,3 +2698,37 @@ body.rtl .sort-menu {
   background: rgba(249, 115, 22, 0.18);
   color: #fdba74;
 }
+
+/* ===== Latest section: title + sort | categories opposite side ===== */
+.section-header-latest {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 0.85rem 1.25rem;
+}
+.latest-title-side {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+.latest-title-side h2 {
+  margin: 0;
+}
+.home-cat-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.45rem;
+  justify-content: flex-end;
+  max-width: 100%;
+}
+@media (max-width: 640px) {
+  .section-header-latest {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  .home-cat-chips {
+    justify-content: flex-start;
+  }
+}
